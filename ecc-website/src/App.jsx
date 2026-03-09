@@ -10,7 +10,7 @@ export default function ECCClubWebsite() {
     start: "April 2026",
   };
 
-  const clubLogo = "https://upload.wikimedia.org/wikipedia/commons/7/7a/Cricket_ball.png";
+  const clubLogo = "/ECC_LOGO.png";
 
   const players = [
     { name: "Raavy", team: "Vikings", role: "Allrounder", image: "https://randomuser.me/api/portraits/men/32.jpg", email: "raavy.pothela@gmail.com", phone: "6146799277" },
