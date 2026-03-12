@@ -12,7 +12,7 @@ export default function ECCClubWebsite() {
     start: "April 2026",
   };
 
-  const clubLogo = "/ecc-logo.png";
+  const clubLogo = "/public/ecc-logo.png";
 
   const players = [
     {
