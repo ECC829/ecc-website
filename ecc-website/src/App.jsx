@@ -6,20 +6,61 @@ export default function ECCClubWebsite() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedPlayer, setSelectedPlayer] = useState(null);
   const [activeProfileTab, setActiveProfileTab] = useState("batting");
+  const [leadershipForm, setLeadershipForm] = useState({
+    
+    garudasCaptainNominee: "",
+    garudasViceCaptainNominee: "",
+    submitterName: "",
+    submitterContact: "",
+    submitterEmail: "",
+    vajrasCaptainChange: "",
+    vajrasCaptainNominee: "",
+    vajrasViceCaptainChange: "",
+    vajrasViceCaptainNominee: "",
+    garudasCaptainInterested: "",
+    garudasViceCaptainInterested: "",
+  });
+  const socialLinks = [
+    {
+      name: "Instagram",
+      handle: "@eastoncricketclu",
+      url: "https://instagram.com/eastoncricketclub",
+      description: "Match posters, tournament highlights, player features, and club moments.",
+    },
+    {
+      name: "WhatsApp Community",
+      handle: "ECC Family",
+      url: "#",
+      description: "Quick team communication, tournament updates, and club announcements.",
+    },
+    {
+      name: "YouTube",
+      handle: "ECC Club Media",
+      url: "https://www.youtube.com/@ECCSportsEvents",
+      description: "Highlights, player interviews, tournament recap videos, and club content.",
+    },
+    {
+      name: "Facebook",
+      handle: "ECC Columbus",
+      url: "#",
+      description: "Community updates, event promotions, and sponsor visibility posts.",
+    },
+  ];
 
   const season = {
     year: 2026,
     start: "April 2026",
   };
 
-  const clubLogo = "ecc-logo.jpg";
+  const clubLogo = "/ECC_LOGO.png";
+  const fallbackImage = "https://images.unsplash.com/photo-1517466787929-bc90951d0974?auto=format&fit=crop&w=600&q=80";
 
   const players = [
     {
       name: "Raavy",
       team: "Vikings",
       role: "Allrounder",
-      image: "https://randomuser.me/api/portraits/men/32.jpg",
+      image: fallbackImage,
       email: "raavy.pothela@gmail.com",
       phone: "6146799277",
       stats: {
@@ -34,11 +75,11 @@ export default function ECCClubWebsite() {
         playerType: "Allrounder",
         battingStyle: "Right-hand batter",
         bowlingStyle: "Right-arm medium",
-        nationality: "Indian",
+        nationality: "",
         jerseyNo: 7,
-        debutSeason: 2021,
-        dateOfBirth: "09 May 1994",
-        profileImage: "https://randomuser.me/api/portraits/men/32.jpg",
+        debutSeason: 2020,
+        dateOfBirth: "31 January 1997",
+        profileImage: fallbackImage,
         about:
           "Raavy is one of ECC Vikings' core all-rounders, known for high intent batting, smart game awareness, and dependable overs in pressure situations. He brings balance to the side and can shift momentum with both bat and ball.",
         seasonBatting: [
@@ -55,43 +96,43 @@ export default function ECCClubWebsite() {
         ],
       },
     },
-    { name: "Ajay", team: "Vikings", role: "Batsman", image: "https://randomuser.me/api/portraits/men/45.jpg", email: "ajaymanyam007@gmail.com", phone: "9372516898" },
-    { name: "Bala sai bharath raju Jayapathi", team: "Kurralu", role: "Batsman", image: "https://randomuser.me/api/portraits/men/12.jpg", email: "bharathcrazy100@gmail.com", phone: "3802428816" },
-    { name: "Balaji Maandapuram", team: "Kurralu", role: "Allrounder", email: "balajimaandapuram@gmail.com", phone: "6145883018" },
-    { name: "Jithendra Kumar Pedarla", team: "Kurralu", role: "Allrounder", email: "jithendra.kumarb1@gmail.com", phone: "6145569893" },
-    { name: "Likith Muddu Krishna", team: "Kurralu", role: "Allrounder", email: "likithmk05@gmail.com", phone: "2164664608" },
-    { name: "Sravan Kumar Tumu", team: "Kurralu", role: "Allrounder", email: "sravantumu7@gmail.com", phone: "6144403016" },
-    { name: "Santosh Bharadwaj", team: "Vikings", role: "Batsman", email: "santoshbharadwaj17@gmail.com", phone: "9379561200" },
-    { name: "Vishal", team: "Royals", role: "Allrounder", email: "vishal123m@gmail.com", phone: "6185409935" },
-    { name: "Srini Chinnakonda", team: "Royals", role: "Allrounder", email: "ccsrinivasan1985@gmail.com", phone: "6145318606" },
-    { name: "Nishanth", team: "Royals", role: "Batsman", email: "nishanth.b1950@gmail.com", phone: "6163340822" },
-    { name: "Aditya panchamukh Yalla", team: "Royals", role: "Allrounder", email: "adityapanchamukh@gmail.com", phone: "5107668762" },
-    { name: "Pk", team: "Kurralu", role: "Allrounder", email: "pavankalyan.karimi@gmail.com", phone: "9373293514" },
-    { name: "Adithya Radhakrishnan", team: "Kurralu", role: "Allrounder", email: "adithya.rk24@gmail.com", phone: "9372517272" },
-    { name: "Bobby", team: "Royals", role: "Batsman", email: "babiadireddi@gmail.com", phone: "3127744025" },
-    { name: "Shubhodeep Ghosh (Ronie)", team: "Royals", role: "Batsman", email: "shubhodeep.ghosh.1704@gmail.com", phone: "6142606360" },
-    { name: "Jayanth Buchala", team: "Vikings", role: "Allrounder", email: "jayanth.buchala18@gmail.com", phone: "9373293653" },
-    { name: "Mohithkumar Bolisetti", team: "Vikings", role: "Bowler", email: "mohithkumar187@gmail.com", phone: "9372045257" },
-    { name: "Saivishal Lingala", team: "Vikings", role: "Batsman", email: "saivarunlingala37@gmail.com", phone: "6146224426" },
-    { name: "Umesh", team: "Kurralu", role: "Batsman", email: "umeford@gmail.com", phone: "8164896010" },
-    { name: "Satwik Reddy", team: "Vikings", role: "Allrounder", email: "saisatwik123456@gmail.com", phone: "9373210299" },
-    { name: "Mahesh Mannam", team: "Royals", role: "Allrounder", email: "srimahr@gmail.com", phone: "6146803804" },
-    { name: "deepak", team: "Kurralu", role: "Allrounder", email: "mdeepu3006@gmail.com", phone: "9373464673" },
-    { name: "Ajit", team: "Vikings", role: "Batsman", email: "dvajith04@gmail.com", phone: "9135531302" },
-    { name: "Krishna Vamshi Dampuri", team: "Vikings", role: "Allrounder", email: "krishnadampuri@gmail.com", phone: "9374769411" },
-    { name: "Ram Mekala", team: "Royals", role: "Allrounder", email: "ramchandar28790@gmail.com", phone: "6146957655" },
-    { name: "Ramu", team: "Royals", role: "Allrounder", email: "yadav.ramu@gmail.com", phone: "9403440807" },
-    { name: "Sachin Kumar Pradhan", team: "Vikings", role: "Bowler", email: "sachinkumarpradhan1123@gmail.com", phone: "6143841303" },
-    { name: "Satya", team: "Vikings", role: "Batsman", email: "sai.satyaprasanna@gmail.com", phone: "6145562947" },
-    { name: "Naresh", team: "Royals", role: "Bowler", email: "nkanyan1269@gmail.com", phone: "7085526517" },
-    { name: "Kiran", team: "Royals", role: "Batsman", email: "n.saikiran88@gmail.com", phone: "7814914191" },
-    { name: "Aman Madathil", team: "Royals", role: "Batsman", email: "amancs1729@gmail.com", phone: "8155643013" },
-    { name: "Nithin", team: "Royals", role: "Bowler", email: "shoponline448@gmail.com", phone: "4436913348" },
-    { name: "Achutha Telluri", team: "Vikings", role: "Allrounder", email: "achuthramireddy123@gmail.com", phone: "2037107221" },
-    { name: "Satheesh Bommavaram", team: "Royals", role: "Batsman", email: "satheeshrao777@gmail.com", phone: "8143845525" },
-    { name: "Saumitra Kulkarni", team: "Vikings", role: "Batsman", email: "kulkarni100mitra@gmail.com", phone: "9377893826" },
-    { name: "Praveen K", team: "Vikings", role: "Batsman", email: "ignoreemailfornnow@gmail.com", phone: "6144074302" },
-    { name: "Vamsi Duggampudi", team: "Vikings", role: "Bowler", email: "eccevents.columbus@gmail.com", phone: "8722166480" },
+    { name: "Ajay", team: "Vikings", role: "Batsman", image: fallbackImage, email: "ajaymanyam007@gmail.com", phone: "9372516898" },
+    { name: "Bala sai bharath raju Jayapathi", team: "Kurralu", role: "Batsman", image: fallbackImage, email: "bharathcrazy100@gmail.com", phone: "3802428816" },
+    { name: "Balaji Maandapuram", team: "Kurralu", role: "Allrounder", image: fallbackImage, email: "balajimaandapuram@gmail.com", phone: "6145883018" },
+    { name: "Jithendra Kumar Pedarla", team: "Kurralu", role: "Allrounder", image: fallbackImage, email: "jithendra.kumarb1@gmail.com", phone: "6145569893" },
+    { name: "Likith Muddu Krishna", team: "Kurralu", role: "Allrounder", image: fallbackImage, email: "likithmk05@gmail.com", phone: "2164664608" },
+    { name: "Sravan Kumar Tumu", team: "Kurralu", role: "Allrounder", image: fallbackImage, email: "sravantumu7@gmail.com", phone: "6144403016" },
+    { name: "Santosh Bharadwaj", team: "Vikings", role: "Batsman", image: fallbackImage, email: "santoshbharadwaj17@gmail.com", phone: "9379561200" },
+    { name: "Vishal", team: "Royals", role: "Allrounder", image: fallbackImage, email: "vishal123m@gmail.com", phone: "6185409935" },
+    { name: "Srini Chinnakonda", team: "Royals", role: "Allrounder", image: fallbackImage, email: "ccsrinivasan1985@gmail.com", phone: "6145318606" },
+    { name: "Nishanth", team: "Royals", role: "Batsman", image: fallbackImage, email: "nishanth.b1950@gmail.com", phone: "6163340822" },
+    { name: "Aditya panchamukh Yalla", team: "Royals", role: "Allrounder", image: fallbackImage, email: "adityapanchamukh@gmail.com", phone: "5107668762" },
+    { name: "Pk", team: "Kurralu", role: "Allrounder", image: fallbackImage, email: "pavankalyan.karimi@gmail.com", phone: "9373293514" },
+    { name: "Adithya Radhakrishnan", team: "Kurralu", role: "Allrounder", image: fallbackImage, email: "adithya.rk24@gmail.com", phone: "9372517272" },
+    { name: "Bobby", team: "Royals", role: "Batsman", image: fallbackImage, email: "babiadireddi@gmail.com", phone: "3127744025" },
+    { name: "Shubhodeep Ghosh (Ronie)", team: "Royals", role: "Batsman", image: fallbackImage, email: "shubhodeep.ghosh.1704@gmail.com", phone: "6142606360" },
+    { name: "Jayanth Buchala", team: "Vikings", role: "Allrounder", image: fallbackImage, email: "jayanth.buchala18@gmail.com", phone: "9373293653" },
+    { name: "Mohithkumar Bolisetti", team: "Vikings", role: "Bowler", image: fallbackImage, email: "mohithkumar187@gmail.com", phone: "9372045257" },
+    { name: "Saivishal Lingala", team: "Vikings", role: "Batsman", image: fallbackImage, email: "saivarunlingala37@gmail.com", phone: "6146224426" },
+    { name: "Umesh", team: "Kurralu", role: "Batsman", image: fallbackImage, email: "umeford@gmail.com", phone: "8164896010" },
+    { name: "Satwik Reddy", team: "Vikings", role: "Allrounder", image: fallbackImage, email: "saisatwik123456@gmail.com", phone: "9373210299" },
+    { name: "Mahesh Mannam", team: "Royals", role: "Allrounder", image: fallbackImage, email: "srimahr@gmail.com", phone: "6146803804" },
+    { name: "deepak", team: "Kurralu", role: "Allrounder", image: fallbackImage, email: "mdeepu3006@gmail.com", phone: "9373464673" },
+    { name: "Ajit", team: "Vikings", role: "Batsman", image: fallbackImage, email: "dvajith04@gmail.com", phone: "9135531302" },
+    { name: "Krishna Vamshi Dampuri", team: "Vikings", role: "Allrounder", image: fallbackImage, email: "krishnadampuri@gmail.com", phone: "9374769411" },
+    { name: "Ram Mekala", team: "Royals", role: "Allrounder", image: fallbackImage, email: "ramchandar28790@gmail.com", phone: "6146957655" },
+    { name: "Ramu", team: "Royals", role: "Allrounder", image: fallbackImage, email: "yadav.ramu@gmail.com", phone: "9403440807" },
+    { name: "Sachin Kumar Pradhan", team: "Vikings", role: "Bowler", image: fallbackImage, email: "sachinkumarpradhan1123@gmail.com", phone: "6143841303" },
+    { name: "Satya", team: "Vikings", role: "Batsman", image: fallbackImage, email: "sai.satyaprasanna@gmail.com", phone: "6145562947" },
+    { name: "Naresh", team: "Royals", role: "Bowler", image: fallbackImage, email: "nkanyan1269@gmail.com", phone: "7085526517" },
+    { name: "Kiran", team: "Royals", role: "Batsman", image: fallbackImage, email: "n.saikiran88@gmail.com", phone: "7814914191" },
+    { name: "Aman Madathil", team: "Royals", role: "Batsman", image: fallbackImage, email: "amancs1729@gmail.com", phone: "8155643013" },
+    { name: "Nithin", team: "Royals", role: "Bowler", image: fallbackImage, email: "shoponline448@gmail.com", phone: "4436913348" },
+    { name: "Achutha Telluri", team: "Vikings", role: "Allrounder", image: fallbackImage, email: "achuthramireddy123@gmail.com", phone: "2037107221" },
+    { name: "Satheesh Bommavaram", team: "Royals", role: "Batsman", image: fallbackImage, email: "satheeshrao777@gmail.com", phone: "8143845525" },
+    { name: "Saumitra Kulkarni", team: "Vikings", role: "Batsman", image: fallbackImage, email: "kulkarni100mitra@gmail.com", phone: "9377893826" },
+    { name: "Praveen K", team: "Vikings", role: "Batsman", image: fallbackImage, email: "ignoreemailfornnow@gmail.com", phone: "6144074302" },
+    { name: "Vamsi Duggampudi", team: "Vikings", role: "Bowler", image: fallbackImage, email: "eccevents.columbus@gmail.com", phone: "8722166480" },
   ];
 
   const fixtures = [
@@ -177,7 +218,7 @@ export default function ECCClubWebsite() {
         description: `${team.name} squad for the ${season.year} season.`,
       }))
       .sort((a, b) => a.name.localeCompare(b.name));
-  }, [players]);
+  }, [players, season.year]);
 
   const teamOptions = ["All", ...teams.map((team) => team.name)];
 
@@ -197,6 +238,21 @@ export default function ECCClubWebsite() {
     }, {});
   }, [players]);
 
+  const teamStories = {
+    royals:
+      "Royals represent ECC with a composed and balanced squad, combining dependable batting depth with all-round contributions and disciplined bowling options.",
+    kurralu:
+      "Kurralu bring energy, aggression, and flexibility to ECC’s campaign, featuring match-winners who can contribute in multiple phases of the game.",
+    vikings:
+      "Vikings are one of ECC’s competitive squads, built with strong all-round depth, impactful bowlers, and a dynamic batting lineup.",
+    bleedblue:
+      "BleedBlue represent ECC in the T7 format with fearless intent, quick impact players, and a fast-paced cricket identity.",
+    vajras:
+      "Vajras are one of ECC’s leather ball teams, built for strategic cricket, disciplined execution, and strong performances in longer formats.",
+    garudas:
+      "Garudas represent ECC in leather ball competition with balanced squad strength, endurance, and tactical depth across T20 and T40 matches.",
+  };
+
   const renderHomePage = () => (
     <>
       <section className="relative overflow-hidden border-b border-white/10">
@@ -206,9 +262,7 @@ export default function ECCClubWebsite() {
             <span className="mb-4 w-fit rounded-full border border-orange-400/30 bg-orange-400/10 px-4 py-1 text-sm text-orange-200">
               Season starts {season.start}
             </span>
-            <h2 className="text-4xl font-extrabold leading-tight md:text-6xl">
-              Welcome to ECC Club
-            </h2>
+            <h2 className="text-4xl font-extrabold leading-tight md:text-6xl">Welcome to ECC Club</h2>
             <p className="mt-6 max-w-xl text-base leading-7 text-slate-300 md:text-lg">
               Easton–Emeralds Cricket Club is building a modern digital home for our players, teams, tournaments, and achievements across Central Ohio.
             </p>
@@ -240,12 +294,8 @@ export default function ECCClubWebsite() {
       <section className="mx-auto max-w-7xl px-6 py-16">
         <div className="mb-8 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
           <div>
-            <p className="text-sm font-semibold uppercase tracking-[0.25em] text-orange-300">
-              Fixtures & Results
-            </p>
-            <h3 className="mt-3 text-3xl font-bold md:text-4xl">
-              Featured on the first page
-            </h3>
+            <p className="text-sm font-semibold uppercase tracking-[0.25em] text-orange-300">Fixtures & Results</p>
+            <h3 className="mt-3 text-3xl font-bold md:text-4xl">Featured on the first page</h3>
             <p className="mt-3 max-w-2xl text-slate-300">
               Match updates, upcoming fixtures, and result highlights will continue to grow here as ECC moves through the season.
             </p>
@@ -285,13 +335,13 @@ export default function ECCClubWebsite() {
         <h3 className="mt-3 text-3xl font-bold md:text-5xl">Easton–Emeralds Cricket Club</h3>
         <div className="mt-8 space-y-6 text-base leading-8 text-slate-300">
           <p>
-            ECC (Easton–Emeralds Cricket Club) is a unified cricket club formed by bringing together players from the Easton and Emeralds teams, two passionate cricket groups in the Central Ohio cricket community. The club was established with the vision of creating a strong and competitive platform where players can showcase their talent, grow together as a team, and contribute to the development of cricket in the region.
+            ECC is a unified cricket club formed by bringing together players from the Easton and Emeralds teams, two passionate cricket groups in the Central Ohio cricket community.
           </p>
           <p>
-            Over the years, ECC has evolved into a well-recognized cricket club in Central Ohio, participating in various tournaments and leagues across cities such as Columbus, Dublin, Dayton, and Cincinnati. The club brings together players from diverse backgrounds who share a common love for the game and a commitment to teamwork, discipline, and sportsmanship.
+            Over the years, ECC has evolved into a recognized cricket club in Central Ohio, participating in tournaments across Columbus, Dublin, Dayton, and Cincinnati.
           </p>
           <p>
-            ECC not only focuses on competitive cricket but also emphasizes community engagement, player development, and fostering the next generation of cricketers. Through its structured teams and participation in multiple formats, ECC provides opportunities for players of different skill levels to compete and grow.
+            ECC focuses on competitive cricket, community engagement, player development, and building a long-term platform for growth.
           </p>
         </div>
       </div>
@@ -309,16 +359,6 @@ export default function ECCClubWebsite() {
             <p className="mt-3 text-slate-300">{format.text}</p>
           </div>
         ))}
-      </div>
-
-      <div className="mt-12 rounded-3xl border border-white/10 bg-slate-900 p-8 shadow-xl">
-        <p className="text-sm font-semibold uppercase tracking-[0.25em] text-orange-300">Vision & Community Impact</p>
-        <ul className="mt-5 grid gap-4 text-slate-300 md:grid-cols-2">
-          <li className="rounded-2xl bg-white/5 p-4">Promoting cricket within the local community</li>
-          <li className="rounded-2xl bg-white/5 p-4">Encouraging sportsmanship and teamwork</li>
-          <li className="rounded-2xl bg-white/5 p-4">Supporting player development and leadership</li>
-          <li className="rounded-2xl bg-white/5 p-4">Building partnerships and sponsorships to grow the club</li>
-        </ul>
       </div>
     </section>
   );
@@ -341,19 +381,7 @@ export default function ECCClubWebsite() {
                 <p className="text-sm uppercase tracking-[0.2em] text-orange-300">Tournament Category</p>
                 <h4 className="mt-3 text-3xl font-bold">{tournament.title}</h4>
                 <p className="mt-4 text-slate-300">{tournament.description}</p>
-
-                <div className="mt-6">
-                  <p className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-400">Major Tournaments</p>
-                  <div className="mt-3 flex flex-wrap gap-3">
-                    {tournament.events.map((event) => (
-                      <span key={event} className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-slate-200">
-                        {event}
-                      </span>
-                    ))}
-                  </div>
-                </div>
               </div>
-
               <div className="grid gap-4">
                 <div className="rounded-2xl bg-white/5 p-5">
                   <p className="text-sm uppercase tracking-[0.2em] text-slate-400">Format Highlights</p>
@@ -387,7 +415,7 @@ export default function ECCClubWebsite() {
         <p className="text-sm font-semibold uppercase tracking-[0.25em] text-orange-300">Teams Overview</p>
         <h3 className="mt-3 text-3xl font-bold md:text-5xl">ECC Team Pages by Format</h3>
         <p className="mt-4 text-slate-300">
-          Team names are now separated by format so visitors can clearly understand which ECC teams compete in T7, T15, and T20/T40 leather ball tournaments.
+          Team names are separated by format so visitors can clearly understand which ECC teams compete in T7, T15, and T20/T40 leather ball tournaments.
         </p>
       </div>
 
@@ -449,7 +477,7 @@ export default function ECCClubWebsite() {
         </div>
 
         <div className="mt-10 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-          {squad.map((player) => (
+          {squad.length > 0 ? squad.map((player) => (
             <button
               key={`${player.team}-${player.name}`}
               onClick={() => {
@@ -462,7 +490,7 @@ export default function ECCClubWebsite() {
             >
               <div className="flex items-start gap-4">
                 <img
-                  src={player.image || "https://randomuser.me/api/portraits/men/1.jpg"}
+                  src={player.image || fallbackImage}
                   alt={player.name}
                   className="h-14 w-14 rounded-full border border-white/10 object-cover"
                 />
@@ -501,194 +529,22 @@ export default function ECCClubWebsite() {
                   </div>
                 )}
               </div>
-
-              <div className="mt-4 text-sm font-semibold text-orange-300">
-                {player.stats ? "Click to open full stats" : "Stats pending"}
-              </div>
             </button>
-          ))}
+          )) : (
+            <div className="col-span-full rounded-3xl border border-dashed border-white/10 bg-slate-900 p-8 text-slate-300">
+              Player roster for {teamName} can be added here.
+            </div>
+          )}
         </div>
       </section>
     );
   };
 
-  const renderContactPage = () => (
-    <section className="mx-auto max-w-7xl px-6 py-16 md:py-24">
-      <div className="max-w-4xl">
-        <p className="text-sm font-semibold uppercase tracking-[0.25em] text-orange-300">Contact ECC</p>
-        <h3 className="mt-3 text-3xl font-bold md:text-5xl">Let’s Connect With ECC</h3>
-        <p className="mt-4 text-slate-300">
-          Whether you want to join the club, sponsor our journey, collaborate on events, or simply get in touch, we would love to hear from you.
-        </p>
-      </div>
-
-      <div className="mt-10 grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
-        <div className="space-y-6">
-          <div className="rounded-3xl border border-white/10 bg-slate-900 p-8 shadow-xl">
-            <p className="text-sm font-semibold uppercase tracking-[0.2em] text-orange-300">General Contact</p>
-            <h4 className="mt-3 text-2xl font-bold text-white">Reach Out to ECC</h4>
-            <div className="mt-6 grid gap-4 md:grid-cols-2">
-              <div className="rounded-2xl bg-white/5 p-5">
-                <p className="text-sm text-slate-400">Club Contact</p>
-                <p className="mt-1 font-semibold text-white">ECC Admin</p>
-              </div>
-              <div className="rounded-2xl bg-white/5 p-5">
-                <p className="text-sm text-slate-400">Email</p>
-                <a href="mailto:eccevents.columbus@gmail.com" className="mt-1 block font-semibold text-white hover:text-orange-300">
-                  eccevents.columbus@gmail.com
-                </a>
-              </div>
-              <div className="rounded-2xl bg-white/5 p-5">
-                <p className="text-sm text-slate-400">Phone</p>
-                <a href="tel:+18722166480" className="mt-1 block font-semibold text-white hover:text-orange-300">
-                  +1 872-216-6480
-                </a>
-              </div>
-              <div className="rounded-2xl bg-white/5 p-5">
-                <p className="text-sm text-slate-400">Location</p>
-                <p className="mt-1 font-semibold text-white">Columbus, Ohio</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="rounded-3xl border border-white/10 bg-slate-900 p-8 shadow-xl">
-            <div className="flex items-center justify-between gap-4 flex-wrap">
-              <div>
-                <p className="text-sm font-semibold uppercase tracking-[0.2em] text-orange-300">Instagram</p>
-                <h4 className="mt-2 text-2xl font-bold text-white">Follow Our Club Journey</h4>
-              </div>
-              <a
-                href="https://instagram.com/eastoncricketclub"
-                target="_blank"
-                rel="noreferrer"
-                className="rounded-2xl bg-orange-500 px-5 py-3 font-semibold text-white shadow-lg transition hover:scale-[1.02]"
-              >
-                Visit Instagram
-              </a>
-            </div>
-            <p className="mt-4 text-slate-300">
-              Stay connected for club updates, tournament highlights, events, announcements, and community moments.
-            </p>
-            <div className="mt-5 rounded-2xl bg-white/5 p-4 text-slate-200">
-              @eastoncricketclub
-            </div>
-          </div>
-        </div>
-
-        <div className="space-y-6">
-          <div className="rounded-3xl border border-white/10 bg-slate-900 p-8 shadow-xl">
-            <p className="text-sm font-semibold uppercase tracking-[0.2em] text-orange-300">Contact Form</p>
-            <h4 className="mt-2 text-2xl font-bold text-white">Send a Message</h4>
-            <p className="mt-3 text-slate-300">
-              A simple way for visitors to reach ECC regarding club details, partnerships, or match coordination.
-            </p>
-            <form className="mt-6 space-y-4" onSubmit={(e)=>{e.preventDefault(); alert('Message sent! (Demo mode)')}}>
-              <input
-                type="text"
-                placeholder="Your Name"
-                className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-white outline-none placeholder:text-slate-400"
-              />
-              <input
-                type="email"
-                placeholder="Your Email"
-                className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-white outline-none placeholder:text-slate-400"
-              />
-              <textarea
-                rows="5"
-                placeholder="Your Message"
-                className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-white outline-none placeholder:text-slate-400"
-              />
-              <button
-                type="submit" className="w-full rounded-2xl bg-orange-500 px-5 py-3 font-semibold text-white shadow-lg transition hover:scale-[1.01]"
-              >
-                Send Message
-              </button>
-            </form>
-          </div>
-
-          <div className="rounded-3xl border border-white/10 bg-slate-900 p-8 shadow-xl">
-            <p className="text-sm font-semibold uppercase tracking-[0.2em] text-orange-300">Sponsor Inquiry</p>
-            <h4 className="mt-2 text-2xl font-bold text-white">Partner With ECC</h4>
-            <p className="mt-3 text-slate-300">
-              Sponsors help us grow tournaments, build community presence, support players, and create a stronger cricket platform in Central Ohio.
-            </p>
-            <form className="mt-6 space-y-4">
-              <input
-                type="text"
-                placeholder="Business / Sponsor Name"
-                className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-white outline-none placeholder:text-slate-400"
-              />
-              <input
-                type="email"
-                placeholder="Business Email"
-                className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-white outline-none placeholder:text-slate-400"
-              />
-              <textarea
-                rows="4"
-                placeholder="Tell us about your sponsorship interest"
-                className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-white outline-none placeholder:text-slate-400"
-              />
-              <button
-                type="button"
-                className="w-full rounded-2xl border border-orange-400/30 bg-orange-400/10 px-5 py-3 font-semibold text-orange-200 transition hover:bg-orange-400/20"
-              >
-                Submit Sponsor Inquiry
-              </button>
-            </form>
-          </div>
-
-          <div className="rounded-3xl border border-white/10 bg-slate-900 p-8 shadow-xl">
-            <p className="text-sm font-semibold uppercase tracking-[0.2em] text-orange-300">Join ECC</p>
-            <h4 className="mt-2 text-2xl font-bold text-white">Become Part of the Club</h4>
-            <p className="mt-3 text-slate-300">
-              Interested in playing for ECC? Share your details and preferred role so we can connect with you for upcoming opportunities.
-            </p>
-            <form className="mt-6 space-y-4">
-              <input
-                type="text"
-                placeholder="Player Name"
-                className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-white outline-none placeholder:text-slate-400"
-              />
-              <input
-                type="email"
-                placeholder="Email Address"
-                className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-white outline-none placeholder:text-slate-400"
-              />
-              <select className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-white outline-none">
-                <option className="bg-slate-900 text-white">Preferred Role</option>
-                <option className="bg-slate-900 text-white">Batsman</option>
-                <option className="bg-slate-900 text-white">Bowler</option>
-                <option className="bg-slate-900 text-white">Allrounder</option>
-                <option className="bg-slate-900 text-white">Wicket Keeper</option>
-              </select>
-              <textarea
-                rows="4"
-                placeholder="Tell us about your cricket experience"
-                className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-white outline-none placeholder:text-slate-400"
-              />
-              <button
-                type="button"
-                className="w-full rounded-2xl bg-white/10 px-5 py-3 font-semibold text-white transition hover:bg-white/15"
-              >
-                Submit Player Interest
-              </button>
-            </form>
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-
   const renderPlayersPage = () => (
     <section className="mx-auto max-w-7xl px-6 py-16 md:py-24">
       <div className="mb-10 max-w-3xl">
-        <p className="text-sm font-semibold uppercase tracking-[0.25em] text-orange-300">
-          Player Directory
-        </p>
+        <p className="text-sm font-semibold uppercase tracking-[0.25em] text-orange-300">Player Directory</p>
         <h3 className="mt-3 text-3xl font-bold md:text-5xl">Player Information</h3>
-        <p className="mt-4 text-slate-300">
-          This page is fully dynamic. Every player card is created from your roster data, and future stats can be added player by player without changing the website structure.
-        </p>
       </div>
 
       <div className="mb-8 grid gap-4 rounded-3xl border border-white/10 bg-slate-900 p-5 md:grid-cols-[1fr_220px]">
@@ -711,34 +567,27 @@ export default function ECCClubWebsite() {
         </select>
       </div>
 
-      <div className="mb-6 flex items-center justify-between text-sm text-slate-400">
-        <span>Showing {filteredPlayers.length} players</span>
-        <span>Season {season.year}</span>
-      </div>
-
       <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
         {filteredPlayers.map((player) => (
           <button
             key={`${player.team}-${player.name}`}
             onClick={() => {
-                if (player.stats) {
-                  setSelectedPlayer(player);
-                  setActiveProfileTab("batting");
-                }
-              }}
+              if (player.stats) {
+                setSelectedPlayer(player);
+                setActiveProfileTab("batting");
+              }
+            }}
             className="rounded-3xl border border-white/10 bg-slate-900 p-6 text-left shadow-xl transition hover:-translate-y-1 hover:border-orange-400/30"
           >
             <div className="flex items-start gap-4">
               <img
-                src={player.image || "https://randomuser.me/api/portraits/men/1.jpg"}
+                src={player.image || fallbackImage}
                 alt={player.name}
                 className="h-14 w-14 rounded-full object-cover border border-white/10"
               />
               <div className="flex-1">
-                <div>
-                  <h4 className="text-xl font-bold text-white">{player.name}</h4>
-                  <p className="mt-1 text-sm text-slate-400">{player.team}</p>
-                </div>
+                <h4 className="text-xl font-bold text-white">{player.name}</h4>
+                <p className="mt-1 text-sm text-slate-400">{player.team}</p>
               </div>
               <span className="rounded-full border border-orange-400/30 bg-orange-400/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.15em] text-orange-200">
                 {player.role}
@@ -754,22 +603,6 @@ export default function ECCClubWebsite() {
                 <p className="text-slate-400">Team</p>
                 <p className="mt-1 font-medium text-white">{player.team}</p>
               </div>
-              {player.stats ? (
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="rounded-2xl bg-orange-400/10 p-3">
-                    <p className="text-slate-400">Runs</p>
-                    <p className="mt-1 font-semibold text-white">{player.stats.runs}</p>
-                  </div>
-                  <div className="rounded-2xl bg-orange-400/10 p-3">
-                    <p className="text-slate-400">Wickets</p>
-                    <p className="mt-1 font-semibold text-white">{player.stats.wickets}</p>
-                  </div>
-                </div>
-              ) : (
-                <div className="rounded-2xl border border-dashed border-white/10 bg-white/5 p-3 text-slate-400">
-                  Sample stats available on players added with data
-                </div>
-              )}
             </div>
           </button>
         ))}
@@ -777,54 +610,485 @@ export default function ECCClubWebsite() {
     </section>
   );
 
+  const updateLeadershipField = (field, value) => {
+    setLeadershipForm((prev) => ({
+      ...prev,
+      [field]: value,
+      ...(field === "vajrasCaptainChange" && value !== "Yes" ? { vajrasCaptainNominee: "" } : {}),
+      ...(field === "vajrasViceCaptainChange" && value !== "Yes" ? { vajrasViceCaptainNominee: "" } : {}),
+      ...(field === "garudasCaptainInterested" && value !== "Yes" ? { garudasCaptainNominee: "" } : {}),
+      ...(field === "garudasViceCaptainInterested" && value !== "Yes" ? { garudasViceCaptainNominee: "" } : {}),
+    }));
+  };
+
+  const handleLeadershipSubmit = async () => {
+    try {
+      const response = await fetch("https://script.google.com/macros/s/AKfycbziWvPSEJ2SP7wtQV_306-9HjyT-1Hnu6ne2M67QsCGVZQg78JoxF7kCm3l2UNNTjk1oA/exec", {
+        method: "POST",
+        headers: {
+          "Content-Type": "text/plain;charset=utf-8",
+        },
+        body: JSON.stringify(leadershipForm),
+      });
+
+      const result = await response.json();
+
+      if (result.status === "success") {
+        alert("Leadership form submitted successfully!");
+        setLeadershipForm({
+          
+          garudasCaptainNominee: "",
+          garudasViceCaptainNominee: "",
+          submitterName: "",
+          submitterContact: "",
+          submitterEmail: "",
+          vajrasCaptainChange: "",
+          vajrasCaptainNominee: "",
+          vajrasViceCaptainChange: "",
+          vajrasViceCaptainNominee: "",
+          garudasCaptainInterested: "",
+          garudasViceCaptainInterested: "",
+        });
+      } else {
+        alert("Something went wrong while submitting the form.");
+      }
+    } catch (error) {
+      console.error(error);
+      alert("Submission failed.");
+    }
+  };
+
+  const renderLeadershipPage = () => (
+    <section className="mx-auto max-w-5xl px-6 py-16 md:py-24">
+      <div className="max-w-4xl">
+        <p className="text-sm font-semibold uppercase tracking-[0.25em] text-orange-300">Leadership Page</p>
+        <h3 className="mt-3 text-3xl font-bold md:text-5xl">ECC Leadership</h3>
+        <p className="mt-4 text-slate-300">
+          This dedicated leadership page captures captaincy and vice-captaincy decisions for both Vajras and Garudas, along with submitter details for tracking responses.
+        </p>
+      </div>
+
+      <div className="mt-10 space-y-8">
+        <div className="rounded-3xl border border-white/10 bg-slate-900 p-8 shadow-xl">
+          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-orange-300">Submitted By</p>
+          <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+            
+            <input
+              type="text"
+              value={leadershipForm.submitterName}
+              onChange={(e) => updateLeadershipField('submitterName', e.target.value)}
+              placeholder="Name"
+              className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-white outline-none placeholder:text-slate-400"
+            />
+            <input
+              type="text"
+              value={leadershipForm.submitterContact}
+              onChange={(e) => updateLeadershipField('submitterContact', e.target.value)}
+              placeholder="Contact"
+              className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-white outline-none placeholder:text-slate-400"
+            />
+            <input
+              type="email"
+              value={leadershipForm.submitterEmail}
+              onChange={(e) => updateLeadershipField('submitterEmail', e.target.value)}
+              placeholder="Email"
+              className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-white outline-none placeholder:text-slate-400"
+            />
+          </div>
+        </div>
+        <div className="rounded-3xl border border-white/10 bg-slate-900 p-8 shadow-xl">
+          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-orange-300">Section 1</p>
+          <h4 className="mt-2 text-2xl font-bold text-white">Vajras Leadership</h4>
+
+          <div className="mt-8 space-y-6">
+            <div>
+              <label className="block text-sm font-semibold text-white">Vajras Captaincy needs to change from last year</label>
+              <div className="mt-3 flex gap-3">
+                {['Yes', 'No'].map((option) => {
+                  const active = leadershipForm.vajrasCaptainChange === option;
+                  return (
+                    <button
+                      key={option}
+                      type="button"
+                      onClick={() => updateLeadershipField('vajrasCaptainChange', option)}
+                      className={active ? 'rounded-2xl bg-orange-500 px-5 py-3 text-sm font-semibold text-white transition' : 'rounded-2xl border border-white/10 bg-white/5 px-5 py-3 text-sm font-semibold text-slate-200 transition hover:bg-white/10'}
+                    >
+                      {option}
+                    </button>
+                  );
+                })}
+              </div>
+              {leadershipForm.vajrasCaptainChange === 'Yes' && (
+                <input
+                  type="text"
+                  value={leadershipForm.vajrasCaptainNominee}
+                  onChange={(e) => updateLeadershipField('vajrasCaptainNominee', e.target.value)}
+                  placeholder="Nominate the captain"
+                  className="mt-4 w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-white outline-none placeholder:text-slate-400"
+                />
+              )}
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-white">Vajras Vice Captaincy needs to change from last year</label>
+              <div className="mt-3 flex gap-3">
+                {['Yes', 'No'].map((option) => {
+                  const active = leadershipForm.vajrasViceCaptainChange === option;
+                  return (
+                    <button
+                      key={option}
+                      type="button"
+                      onClick={() => updateLeadershipField('vajrasViceCaptainChange', option)}
+                      className={active ? 'rounded-2xl bg-orange-500 px-5 py-3 text-sm font-semibold text-white transition' : 'rounded-2xl border border-white/10 bg-white/5 px-5 py-3 text-sm font-semibold text-slate-200 transition hover:bg-white/10'}
+                    >
+                      {option}
+                    </button>
+                  );
+                })}
+              </div>
+              {leadershipForm.vajrasViceCaptainChange === 'Yes' && (
+                <input
+                  type="text"
+                  value={leadershipForm.vajrasViceCaptainNominee}
+                  onChange={(e) => updateLeadershipField('vajrasViceCaptainNominee', e.target.value)}
+                  placeholder="Nominate VC"
+                  className="mt-4 w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-white outline-none placeholder:text-slate-400"
+                />
+              )}
+            </div>
+          </div>
+        </div>
+
+        <div className="rounded-3xl border border-white/10 bg-slate-900 p-8 shadow-xl">
+          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-orange-300">Section 2</p>
+          <h4 className="mt-2 text-2xl font-bold text-white">Garudas Leadership</h4>
+
+          <div className="mt-8 space-y-6">
+            <div>
+              <label className="block text-sm font-semibold text-white">Garudas Captaincy Interested</label>
+              <div className="mt-3 flex gap-3">
+                {['Yes', 'No'].map((option) => {
+                  const active = leadershipForm.garudasCaptainInterested === option;
+                  return (
+                    <button
+                      key={option}
+                      type="button"
+                      onClick={() => updateLeadershipField('garudasCaptainInterested', option)}
+                      className={active ? 'rounded-2xl bg-orange-500 px-5 py-3 text-sm font-semibold text-white transition' : 'rounded-2xl border border-white/10 bg-white/5 px-5 py-3 text-sm font-semibold text-slate-200 transition hover:bg-white/10'}
+                    >
+                      {option}
+                    </button>
+                  );
+                })}
+              </div>
+              {leadershipForm.garudasCaptainInterested === 'Yes' && (
+                <input
+                  type="text"
+                  value={leadershipForm.garudasCaptainNominee}
+                  onChange={(e) => updateLeadershipField('garudasCaptainNominee', e.target.value)}
+                  placeholder="Nominate Garudas Captain"
+                  className="mt-4 w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-white outline-none placeholder:text-slate-400"
+                />
+              )}
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-white">Garudas VC Interested</label>
+              <div className="mt-3 flex gap-3">
+                {['Yes', 'No'].map((option) => {
+                  const active = leadershipForm.garudasViceCaptainInterested === option;
+                  return (
+                    <button
+                      key={option}
+                      type="button"
+                      onClick={() => updateLeadershipField('garudasViceCaptainInterested', option)}
+                      className={active ? 'rounded-2xl bg-orange-500 px-5 py-3 text-sm font-semibold text-white transition' : 'rounded-2xl border border-white/10 bg-white/5 px-5 py-3 text-sm font-semibold text-slate-200 transition hover:bg-white/10'}
+                    >
+                      {option}
+                    </button>
+                  );
+                })}
+              </div>
+              {leadershipForm.garudasViceCaptainInterested === 'Yes' && (
+                <input
+                  type="text"
+                  value={leadershipForm.garudasViceCaptainNominee}
+                  onChange={(e) => updateLeadershipField('garudasViceCaptainNominee', e.target.value)}
+                  placeholder="Nominate Garudas VC"
+                  className="mt-4 w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-white outline-none placeholder:text-slate-400"
+                />
+              )}
+            </div>
+          </div>
+
+          <button
+            type="button"
+            onClick={handleLeadershipSubmit}
+            className="mt-8 w-full rounded-2xl bg-orange-500 px-5 py-3 font-semibold text-white shadow-lg transition hover:scale-[1.01]"
+          >
+            Submit Leadership Form
+          </button>
+        </div>
+      </div>
+    </section>
+  );
+
+  const renderSocialPage = () => (
+    <section className="mx-auto max-w-7xl px-6 py-16 md:py-24">
+      <div className="max-w-4xl">
+        <p className="text-sm font-semibold uppercase tracking-[0.25em] text-orange-300">Social Media</p>
+        <h3 className="mt-3 text-3xl font-bold md:text-5xl">Stay Connected With ECC</h3>
+        <p className="mt-4 text-slate-300">
+          Follow ECC across social platforms for tournament news, player announcements, match-day posters, sponsor collaborations, and club updates.
+        </p>
+      </div>
+
+      <div className="mt-10 grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+        {socialLinks.map((item) => (
+          <div key={item.name} className="rounded-3xl border border-white/10 bg-slate-900 p-6 shadow-xl">
+            <p className="text-sm uppercase tracking-[0.2em] text-orange-300">{item.name}</p>
+            <h4 className="mt-3 text-2xl font-bold text-white">{item.handle}</h4>
+            <p className="mt-4 text-slate-300">{item.description}</p>
+            <a
+              href={item.url}
+              target="_blank"
+              rel="noreferrer"
+              className="mt-6 inline-flex rounded-2xl bg-orange-500 px-4 py-3 text-sm font-semibold text-white shadow-lg transition hover:scale-[1.01]"
+            >
+              Open {item.name}
+            </a>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+
+  const renderContactPage = () => (
+    <section className="mx-auto max-w-7xl px-6 py-16 md:py-24">
+      <div className="max-w-4xl">
+        <p className="text-sm font-semibold uppercase tracking-[0.25em] text-orange-300">Contact ECC</p>
+        <h3 className="mt-3 text-3xl font-bold md:text-5xl">Let’s Connect With ECC</h3>
+      </div>
+
+      <div className="mt-10 grid gap-6 lg:grid-cols-2">
+        <div className="rounded-3xl border border-white/10 bg-slate-900 p-8 shadow-xl lg:col-span-2">
+          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-orange-300">Quick Actions</p>
+          <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+            <button
+              onClick={() => setActivePage("social")}
+              className="rounded-2xl border border-white/10 bg-white/5 px-5 py-4 text-left transition hover:bg-white/10"
+            >
+              <p className="text-lg font-bold text-white">Social Media Page</p>
+              <p className="mt-2 text-sm text-slate-300">View ECC social platforms and public club presence.</p>
+            </button>
+            <button
+              onClick={() => setActivePage("sponsor")}
+              className="rounded-2xl border border-white/10 bg-white/5 px-5 py-4 text-left transition hover:bg-white/10"
+            >
+              <p className="text-lg font-bold text-white">Sponsor Enquiry</p>
+              <p className="mt-2 text-sm text-slate-300">Let brands and partners reach ECC for sponsorship opportunities.</p>
+            </button>
+            <button
+              onClick={() => setActivePage("register")}
+              className="rounded-2xl border border-white/10 bg-white/5 px-5 py-4 text-left transition hover:bg-white/10"
+            >
+              <p className="text-lg font-bold text-white">Player Registration</p>
+              <p className="mt-2 text-sm text-slate-300">Allow interested players to submit interest and playing details.</p>
+            </button>
+            
+          </div>
+        </div>
+        <div className="rounded-3xl border border-white/10 bg-slate-900 p-8 shadow-xl">
+          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-orange-300">General Contact</p>
+          <div className="mt-6 grid gap-4 md:grid-cols-2">
+            <div className="rounded-2xl bg-white/5 p-5">
+              <p className="text-sm text-slate-400">Club Contact</p>
+              <p className="mt-1 font-semibold text-white">ECC Admin</p>
+            </div>
+            <div className="rounded-2xl bg-white/5 p-5">
+              <p className="text-sm text-slate-400">Email</p>
+              <a href="mailto:eccevents.columbus@gmail.com" className="mt-1 block font-semibold text-white hover:text-orange-300">
+                eccevents.columbus@gmail.com
+              </a>
+            </div>
+            <div className="rounded-2xl bg-white/5 p-5">
+              <p className="text-sm text-slate-400">Phone</p>
+              <a href="tel:+18722166480" className="mt-1 block font-semibold text-white hover:text-orange-300">
+                +1 872-216-6480
+              </a>
+            </div>
+            <div className="rounded-2xl bg-white/5 p-5">
+              <p className="text-sm text-slate-400">Location</p>
+              <p className="mt-1 font-semibold text-white">Columbus, Ohio</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="rounded-3xl border border-white/10 bg-slate-900 p-8 shadow-xl">
+          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-orange-300">Contact Form</p>
+          <form className="mt-6 space-y-4" onSubmit={(e) => e.preventDefault()}>
+            <input type="text" placeholder="Your Name" className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-white outline-none placeholder:text-slate-400" />
+            <input type="email" placeholder="Your Email" className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-white outline-none placeholder:text-slate-400" />
+            <textarea rows="5" placeholder="Your Message" className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-white outline-none placeholder:text-slate-400" />
+            <button type="submit" className="w-full rounded-2xl bg-orange-500 px-5 py-3 font-semibold text-white shadow-lg transition hover:scale-[1.01]">
+              Send Message
+            </button>
+          </form>
+        </div>
+      </div>
+    </section>
+  );
+
+  const renderSponsorPage = () => (
+    <section className="mx-auto max-w-7xl px-6 py-16 md:py-24">
+      <div className="max-w-4xl">
+        <p className="text-sm font-semibold uppercase tracking-[0.25em] text-orange-300">Sponsor Enquiry</p>
+        <h3 className="mt-3 text-3xl font-bold md:text-5xl">Partner With ECC</h3>
+        <p className="mt-4 text-slate-300">
+          ECC welcomes brands, businesses, and community partners who want visibility through tournaments, jerseys, digital promotions, and event branding.
+        </p>
+      </div>
+
+      <div className="mt-10 grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
+        <div className="rounded-3xl border border-white/10 bg-slate-900 p-8 shadow-xl">
+          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-orange-300">Why Sponsor ECC</p>
+          <div className="mt-6 space-y-4 text-slate-300">
+            <div className="rounded-2xl bg-white/5 p-4">Tournament branding and digital visibility</div>
+            <div className="rounded-2xl bg-white/5 p-4">Jersey, flyer, and social media promotion</div>
+            <div className="rounded-2xl bg-white/5 p-4">Community engagement in Central Ohio</div>
+            <div className="rounded-2xl bg-white/5 p-4">Event booth and collaborative promotional opportunities</div>
+          </div>
+        </div>
+
+        <div className="rounded-3xl border border-white/10 bg-slate-900 p-8 shadow-xl">
+          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-orange-300">Sponsor Form</p>
+          <form className="mt-6 space-y-4" onSubmit={(e) => e.preventDefault()}>
+            <input type="text" placeholder="Business / Sponsor Name" className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-white outline-none placeholder:text-slate-400" />
+            <input type="text" placeholder="Contact Person" className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-white outline-none placeholder:text-slate-400" />
+            <input type="email" placeholder="Business Email" className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-white outline-none placeholder:text-slate-400" />
+            <input type="text" placeholder="Phone Number" className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-white outline-none placeholder:text-slate-400" />
+            <select className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-white outline-none">
+              <option className="bg-slate-900 text-white">Interested Sponsorship Type</option>
+              <option className="bg-slate-900 text-white">Jersey Sponsor</option>
+              <option className="bg-slate-900 text-white">Tournament Sponsor</option>
+              <option className="bg-slate-900 text-white">Digital / Social Media Sponsor</option>
+              <option className="bg-slate-900 text-white">Event Sponsor</option>
+            </select>
+            <textarea rows="5" placeholder="Tell us about your sponsorship interest" className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-white outline-none placeholder:text-slate-400" />
+            <button type="submit" className="w-full rounded-2xl bg-orange-500 px-5 py-3 font-semibold text-white shadow-lg transition hover:scale-[1.01]">
+              Submit Sponsor Enquiry
+            </button>
+          </form>
+        </div>
+      </div>
+    </section>
+  );
+
+  const renderRegistrationPage = () => (
+    <section className="mx-auto max-w-7xl px-6 py-16 md:py-24">
+      <div className="max-w-4xl">
+        <p className="text-sm font-semibold uppercase tracking-[0.25em] text-orange-300">Player Registration</p>
+        <h3 className="mt-3 text-3xl font-bold md:text-5xl">Join ECC</h3>
+        <p className="mt-4 text-slate-300">
+          Interested players can use this registration form to share their details, preferred role, playing format, and availability for the upcoming season.
+        </p>
+      </div>
+
+      <div className="mt-10 grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
+        <div className="rounded-3xl border border-white/10 bg-slate-900 p-8 shadow-xl">
+          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-orange-300">What We Look For</p>
+          <div className="mt-6 space-y-4 text-slate-300">
+            <div className="rounded-2xl bg-white/5 p-4">Commitment to team culture and discipline</div>
+            <div className="rounded-2xl bg-white/5 p-4">Interest in T7, T15, T20, or T40 formats</div>
+            <div className="rounded-2xl bg-white/5 p-4">Availability for practice sessions and tournaments</div>
+            <div className="rounded-2xl bg-white/5 p-4">Positive attitude and willingness to grow with ECC</div>
+          </div>
+        </div>
+
+        <div className="rounded-3xl border border-white/10 bg-slate-900 p-8 shadow-xl">
+          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-orange-300">Registration Form</p>
+          <form className="mt-6 space-y-4" onSubmit={(e) => e.preventDefault()}>
+            <input type="text" placeholder="Full Name" className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-white outline-none placeholder:text-slate-400" />
+            <input type="email" placeholder="Email Address" className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-white outline-none placeholder:text-slate-400" />
+            <input type="text" placeholder="Phone Number" className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-white outline-none placeholder:text-slate-400" />
+            <select className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-white outline-none">
+              <option className="bg-slate-900 text-white">Preferred Role</option>
+              <option className="bg-slate-900 text-white">Batsman</option>
+              <option className="bg-slate-900 text-white">Bowler</option>
+              <option className="bg-slate-900 text-white">Allrounder</option>
+              <option className="bg-slate-900 text-white">Wicket Keeper</option>
+            </select>
+            <select className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-white outline-none">
+              <option className="bg-slate-900 text-white">Preferred Format</option>
+              <option className="bg-slate-900 text-white">T7</option>
+              <option className="bg-slate-900 text-white">T15</option>
+              <option className="bg-slate-900 text-white">T20</option>
+              <option className="bg-slate-900 text-white">T40</option>
+            </select>
+            <textarea rows="5" placeholder="Tell us about your cricket experience and availability" className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-white outline-none placeholder:text-slate-400" />
+            <button type="submit" className="w-full rounded-2xl bg-orange-500 px-5 py-3 font-semibold text-white shadow-lg transition hover:scale-[1.01]">
+              Submit Registration
+            </button>
+          </form>
+        </div>
+      </div>
+    </section>
+  );
+
+  const renderActivePage = () => {
+    if (selectedPlayer) {
+      return (
+        <PlayerProfilePage
+          player={selectedPlayer}
+          activeTab={activeProfileTab}
+          setActiveTab={setActiveProfileTab}
+          onBack={() => {
+            setSelectedPlayer(null);
+            setActivePage("players");
+          }}
+        />
+      );
+    }
+
+    if (activePage === "home") return renderHomePage();
+    if (activePage === "about") return renderAboutPage();
+    if (activePage === "tournaments") return renderTournamentsPage();
+    if (activePage === "teams") return renderTeamsPage();
+    if (activePage === "players") return renderPlayersPage();
+    if (activePage === "social") return renderSocialPage();
+    if (activePage === "sponsor") return renderSponsorPage();
+    if (activePage === "register") return renderRegistrationPage();
+    if (activePage === "leadership") return renderLeadershipPage();
+    if (activePage === "contact") return renderContactPage();
+    if (teamStories[activePage]) return renderSingleTeamPage(activePage.charAt(0).toUpperCase() + activePage.slice(1), teamStories[activePage]);
+    return renderHomePage();
+  };
+
   return (
     <div className="min-h-screen bg-slate-950 text-white">
       <header className="sticky top-0 z-50 border-b border-white/10 bg-slate-950/90 backdrop-blur">
         <div className="mx-auto flex max-w-7xl flex-col gap-4 px-6 py-4 md:flex-row md:items-center md:justify-between">
           <div>
             <div className="flex items-center gap-3">
-              <img src={clubLogo} alt="ECC Logo" className="h-10 w-10 rounded-full" />
+              <img src={clubLogo} alt="ECC Logo" className="h-10 w-10 rounded-full object-cover" />
               <h1 className="text-2xl font-bold tracking-wide">ECC Club</h1>
             </div>
             <p className="text-sm text-slate-300">Dynamic club website · Season starts {season.start}</p>
           </div>
 
           <nav className="flex flex-wrap gap-3">
-            <NavButton label="Home" isActive={activePage === "home"} onClick={() => setActivePage("home")} />
-            <NavButton label="About ECC" isActive={activePage === "about"} onClick={() => setActivePage("about")} />
-            <NavButton label="Tournaments" isActive={activePage === "tournaments"} onClick={() => setActivePage("tournaments")} />
-            <NavButton label="Teams" isActive={activePage === "teams" || ["royals", "kurralu", "vikings"].includes(activePage)} onClick={() => setActivePage("teams")} />
-            <NavButton label="Players" isActive={activePage === "players"} onClick={() => setActivePage("players")} />
-            <NavButton label="Contact" isActive={activePage === "contact"} onClick={() => setActivePage("contact")} />
+            <NavButton label="Home" isActive={activePage === "home" && !selectedPlayer} onClick={() => { setSelectedPlayer(null); setActivePage("home"); }} />
+            <NavButton label="About ECC" isActive={activePage === "about" && !selectedPlayer} onClick={() => { setSelectedPlayer(null); setActivePage("about"); }} />
+            <NavButton label="Tournaments" isActive={activePage === "tournaments" && !selectedPlayer} onClick={() => { setSelectedPlayer(null); setActivePage("tournaments"); }} />
+            <NavButton label="Teams" isActive={(activePage === "teams" || Object.keys(teamStories).includes(activePage)) && !selectedPlayer} onClick={() => { setSelectedPlayer(null); setActivePage("teams"); }} />
+            <NavButton label="Players" isActive={activePage === "players" && !selectedPlayer} onClick={() => { setSelectedPlayer(null); setActivePage("players"); }} />
+            <NavButton label="Leadership" isActive={activePage === "leadership" && !selectedPlayer} onClick={() => { setSelectedPlayer(null); setActivePage("leadership"); }} />
+            <NavButton label="Contact" isActive={activePage === "contact" && !selectedPlayer} onClick={() => { setSelectedPlayer(null); setActivePage("contact"); }} />
           </nav>
         </div>
       </header>
 
-      <main>
-        {selectedPlayer ? (
-          <PlayerProfilePage
-            player={selectedPlayer}
-            activeTab={activeProfileTab}
-            setActiveTab={setActiveProfileTab}
-            onBack={() => setSelectedPlayer(null)}
-          />
-        ) : (
-          <>
-            {activePage === "home" && renderHomePage()}
-            {activePage === "about" && renderAboutPage()}
-            {activePage === "tournaments" && renderTournamentsPage()}
-            {activePage === "teams" && renderTeamsPage()}
-            {activePage === "royals" && renderSingleTeamPage("Royals", "Royals represent ECC with a composed and balanced squad, combining dependable batting depth with all-round contributions and disciplined bowling options.")}
-            {activePage === "kurralu" && renderSingleTeamPage("Kurralu", "Kurralu bring energy, aggression, and flexibility to ECC’s campaign, featuring match-winners who can contribute in multiple phases of the game.")}
-            {activePage === "vikings" && renderSingleTeamPage("Vikings", "Vikings are one of ECC’s competitive squads, built with strong all-round depth, impactful bowlers, and a dynamic batting lineup.")}
-            {activePage === "bleedblue" && renderSingleTeamPage("BleedBlue", "BleedBlue represent ECC in the T7 format with fearless intent, quick impact players, and a fast-paced cricket identity.")}
-            {activePage === "vajras" && renderSingleTeamPage("Vajras", "Vajras are one of ECC’s leather ball teams, built for strategic cricket, disciplined execution, and strong performances in longer formats.")}
-            {activePage === "garudas" && renderSingleTeamPage("Garudas", "Garudas represent ECC in leather ball competition with balanced squad strength, endurance, and tactical depth across T20 and T40 matches.")}
-            {activePage === "players" && renderPlayersPage()}
-            {activePage === "contact" && renderContactPage()}
-          </>
-        )}
-      </main>
+      <main>{renderActivePage()}</main>
     </div>
   );
 }
@@ -834,9 +1098,7 @@ function NavButton({ label, isActive, onClick }) {
     <button
       onClick={onClick}
       className={`rounded-2xl px-4 py-2 text-sm font-semibold transition ${
-        isActive
-          ? "bg-orange-500 text-white shadow-lg"
-          : "border border-white/10 bg-white/5 text-slate-200 hover:bg-white/10"
+        isActive ? "bg-orange-500 text-white shadow-lg" : "border border-white/10 bg-white/5 text-slate-200 hover:bg-white/10"
       }`}
     >
       {label}
@@ -881,28 +1143,19 @@ function PlayerProfilePage({ player, activeTab, setActiveTab, onBack }) {
   return (
     <section className="bg-slate-100 text-slate-900">
       <div className="relative overflow-hidden bg-gradient-to-r from-slate-950 via-blue-950 to-slate-900 text-white">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(251,146,60,0.25),transparent_35%),radial-gradient(circle_at_right,rgba(59,130,246,0.18),transparent_30%)]" />
         <div className="relative mx-auto max-w-7xl px-6 py-8 md:py-12">
-          <button
-            onClick={onBack}
-            className="mb-6 rounded-2xl border border-white/15 bg-white/5 px-4 py-2 text-sm font-semibold text-white hover:bg-white/10"
-          >
+          <button onClick={onBack} className="mb-6 rounded-2xl border border-white/15 bg-white/5 px-4 py-2 text-sm font-semibold text-white hover:bg-white/10">
             ← Back to Players
           </button>
 
           <div className="grid gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
             <div className="grid gap-8 md:grid-cols-[300px_1fr] md:items-end">
               <div className="relative mx-auto w-full max-w-[320px] overflow-hidden rounded-[2rem] border border-white/10 bg-gradient-to-b from-orange-300/20 to-transparent p-4">
-                <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.12),transparent_60%)]" />
-                <img
-                  src={player.stats.profileImage || player.image}
-                  alt={player.name}
-                  className="relative mx-auto h-[360px] w-full object-cover object-top"
-                />
+                <img src={player.stats.profileImage || player.image} alt={player.name} className="relative mx-auto h-[360px] w-full object-cover object-top" />
               </div>
 
               <div>
-                <p className="text-sm uppercase tracking-[0.35em] text-orange-300">ECC Vikings</p>
+                <p className="text-sm uppercase tracking-[0.35em] text-orange-300">ECC {player.team}</p>
                 <h1 className="mt-3 text-4xl font-extrabold md:text-6xl">{player.name}</h1>
                 <div className="mt-5 flex flex-wrap gap-3 text-sm font-semibold">
                   <span className="rounded-2xl border border-white/15 bg-white/5 px-4 py-2">{player.stats.nationality}</span>
@@ -915,10 +1168,7 @@ function PlayerProfilePage({ player, activeTab, setActiveTab, onBack }) {
 
             <div className="grid grid-cols-2 overflow-hidden rounded-[2rem] border border-white/10 bg-white/5 backdrop-blur">
               {summaryCards.map((item, index) => (
-                <div
-                  key={item.label}
-                  className={`border-white/10 p-6 md:p-8 ${index % 2 === 0 ? "border-r" : ""} ${index < 2 ? "border-b" : ""}`}
-                >
+                <div key={item.label} className={`border-white/10 p-6 md:p-8 ${index % 2 === 0 ? "border-r" : ""} ${index < 2 ? "border-b" : ""}`}>
                   <p className="text-3xl font-bold text-white md:text-4xl">{item.value}</p>
                   <p className="mt-2 text-sm uppercase tracking-[0.2em] text-slate-300">{item.label}</p>
                 </div>
@@ -934,9 +1184,7 @@ function PlayerProfilePage({ player, activeTab, setActiveTab, onBack }) {
             <button
               key={tab.key}
               onClick={() => setActiveTab(tab.key)}
-              className={`rounded-xl px-5 py-3 text-sm font-semibold transition ${
-                activeTab === tab.key ? "bg-slate-900 text-white" : "text-slate-500 hover:bg-slate-100"
-              }`}
+              className={`rounded-xl px-5 py-3 text-sm font-semibold transition ${activeTab === tab.key ? "bg-slate-900 text-white" : "text-slate-500 hover:bg-slate-100"}`}
             >
               {tab.label}
             </button>
@@ -968,21 +1216,7 @@ function PlayerProfilePage({ player, activeTab, setActiveTab, onBack }) {
           <StatsTable
             title="Batting & Fielding Stats"
             columns={["Year", "MAT", "INNS", "NO", "RUNS", "HS", "AVG", "BF", "SR", "50", "4S", "6S", "CT"]}
-            rows={player.stats.seasonBatting.map((row) => [
-              row.year,
-              row.mat,
-              row.inns,
-              row.no,
-              row.runs,
-              row.hs,
-              row.avg,
-              row.bf,
-              row.sr,
-              row.fifties,
-              row.fours,
-              row.sixes,
-              row.ct,
-            ])}
+            rows={player.stats.seasonBatting.map((row) => [row.year, row.mat, row.inns, row.no, row.runs, row.hs, row.avg, row.bf, row.sr, row.fifties, row.fours, row.sixes, row.ct])}
           />
         )}
 
@@ -990,16 +1224,7 @@ function PlayerProfilePage({ player, activeTab, setActiveTab, onBack }) {
           <StatsTable
             title="Bowling Stats"
             columns={["Year", "MAT", "INNS", "OVERS", "RUNS", "WKTS", "BBI", "ECO"]}
-            rows={player.stats.seasonBowling.map((row) => [
-              row.year,
-              row.mat,
-              row.inns,
-              row.overs,
-              row.runs,
-              row.wkts,
-              row.bbi,
-              row.eco,
-            ])}
+            rows={player.stats.seasonBowling.map((row) => [row.year, row.mat, row.inns, row.overs, row.runs, row.wkts, row.bbi, row.eco])}
           />
         )}
       </div>
@@ -1027,7 +1252,7 @@ function StatsTable({ title, columns, rows }) {
           <thead className="bg-slate-900 text-white">
             <tr>
               {columns.map((column) => (
-                <th key={column} className="px-6 py-4 text-sm uppercase tracking-[0.18em] font-semibold whitespace-nowrap">
+                <th key={column} className="px-6 py-4 text-sm font-semibold uppercase tracking-[0.18em] whitespace-nowrap">
                   {column}
                 </th>
               ))}
