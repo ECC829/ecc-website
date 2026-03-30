@@ -20,17 +20,19 @@ export default function ECCClubWebsite() {
     garudasCaptainInterested: "",
     garudasViceCaptainInterested: "",
   });
+  const [leadershipErrors, setLeadershipErrors] = useState({});
+  const [isSubmittingLeadership, setIsSubmittingLeadership] = useState(false);
   const socialLinks = [
     {
       name: "Instagram",
-      handle: "@eastoncricketclu",
+      handle: "@eastoncricketclub",
       url: "https://instagram.com/eastoncricketclub",
       description: "Match posters, tournament highlights, player features, and club moments.",
     },
     {
       name: "WhatsApp Community",
       handle: "ECC Family",
-      url: "#",
+      url: "https://chat.whatsapp.com/LOCrGwxUvl28SGIZNi9AiM?mode=gi_t",
       description: "Quick team communication, tournament updates, and club announcements.",
     },
     {
@@ -42,7 +44,7 @@ export default function ECCClubWebsite() {
     {
       name: "Facebook",
       handle: "ECC Columbus",
-      url: "#",
+      url: "https://www.facebook.com/share/g/1AskeBaJZM/",
       description: "Community updates, event promotions, and sponsor visibility posts.",
     },
   ];
@@ -52,7 +54,7 @@ export default function ECCClubWebsite() {
     start: "April 2026",
   };
 
-  const clubLogo = "/ECC_LOGO.png";
+  const clubLogo = "/ecc-logo.jpg";
   const fallbackImage = "https://images.unsplash.com/photo-1517466787929-bc90951d0974?auto=format&fit=crop&w=600&q=80";
 
   const players = [
@@ -75,7 +77,7 @@ export default function ECCClubWebsite() {
         playerType: "Allrounder",
         battingStyle: "Right-hand batter",
         bowlingStyle: "Right-arm medium",
-        nationality: "",
+        nationality: "Indian",
         jerseyNo: 7,
         debutSeason: 2020,
         dateOfBirth: "31 January 1997",
@@ -621,7 +623,66 @@ export default function ECCClubWebsite() {
     }));
   };
 
+  const validateLeadershipForm = () => {
+    const errors = {};
+    const email = leadershipForm.submitterEmail.trim();
+    const digitsOnlyContact = leadershipForm.submitterContact.split("").filter((ch) => ch >= "0" && ch <= "9").join("");
+
+    if (!leadershipForm.submitterName.trim()) {
+      errors.submitterName = "Name is required.";
+    }
+
+    if (!leadershipForm.submitterContact.trim()) {
+      errors.submitterContact = "Contact number is required.";
+    } else if (digitsOnlyContact.length < 10) {
+      errors.submitterContact = "Enter a valid contact number.";
+    }
+
+    if (!email) {
+      errors.submitterEmail = "Email is required.";
+    } else if (!email.includes("@") || !email.includes(".")) {
+      errors.submitterEmail = "Enter a valid email address.";
+    }
+
+    if (!leadershipForm.vajrasCaptainChange) {
+      errors.vajrasCaptainChange = "Please select Yes or No.";
+    }
+    if (leadershipForm.vajrasCaptainChange === "Yes" && !leadershipForm.vajrasCaptainNominee.trim()) {
+      errors.vajrasCaptainNominee = "Please nominate a captain.";
+    }
+
+    if (!leadershipForm.vajrasViceCaptainChange) {
+      errors.vajrasViceCaptainChange = "Please select Yes or No.";
+    }
+    if (leadershipForm.vajrasViceCaptainChange === "Yes" && !leadershipForm.vajrasViceCaptainNominee.trim()) {
+      errors.vajrasViceCaptainNominee = "Please nominate a vice captain.";
+    }
+
+    if (!leadershipForm.garudasCaptainInterested) {
+      errors.garudasCaptainInterested = "Please select Yes or No.";
+    }
+    if (leadershipForm.garudasCaptainInterested === "Yes" && !leadershipForm.garudasCaptainNominee.trim()) {
+      errors.garudasCaptainNominee = "Please nominate Garudas captain.";
+    }
+
+    if (!leadershipForm.garudasViceCaptainInterested) {
+      errors.garudasViceCaptainInterested = "Please select Yes or No.";
+    }
+    if (leadershipForm.garudasViceCaptainInterested === "Yes" && !leadershipForm.garudasViceCaptainNominee.trim()) {
+      errors.garudasViceCaptainNominee = "Please nominate Garudas vice captain.";
+    }
+
+    setLeadershipErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
   const handleLeadershipSubmit = async () => {
+    if (!validateLeadershipForm()) {
+      return;
+    }
+
+    setIsSubmittingLeadership(true);
+
     try {
       const response = await fetch("https://script.google.com/macros/s/AKfycbziWvPSEJ2SP7wtQV_306-9HjyT-1Hnu6ne2M67QsCGVZQg78JoxF7kCm3l2UNNTjk1oA/exec", {
         method: "POST",
@@ -636,7 +697,6 @@ export default function ECCClubWebsite() {
       if (result.status === "success") {
         alert("Leadership form submitted successfully!");
         setLeadershipForm({
-          
           garudasCaptainNominee: "",
           garudasViceCaptainNominee: "",
           submitterName: "",
@@ -649,12 +709,15 @@ export default function ECCClubWebsite() {
           garudasCaptainInterested: "",
           garudasViceCaptainInterested: "",
         });
+        setLeadershipErrors({});
       } else {
         alert("Something went wrong while submitting the form.");
       }
     } catch (error) {
       console.error(error);
       alert("Submission failed.");
+    } finally {
+      setIsSubmittingLeadership(false);
     }
   };
 
@@ -664,7 +727,9 @@ export default function ECCClubWebsite() {
         <p className="text-sm font-semibold uppercase tracking-[0.25em] text-orange-300">Leadership Page</p>
         <h3 className="mt-3 text-3xl font-bold md:text-5xl">ECC Leadership</h3>
         <p className="mt-4 text-slate-300">
-          This dedicated leadership page captures captaincy and vice-captaincy decisions for both Vajras and Garudas, along with submitter details for tracking responses.
+          This Page is used to nominate the Captain and Vice Captain for ECC Vajras and ECC Garudas for the 2026 season. If you feel a leadership change is needed, you can nominate yourself or recommend a player you believe is best suited for the role.
+
+Your input is valuable in helping us identify strong leaders who can represent the team, support players, and drive us toward success this season.
         </p>
       </div>
 
@@ -672,28 +737,44 @@ export default function ECCClubWebsite() {
         <div className="rounded-3xl border border-white/10 bg-slate-900 p-8 shadow-xl">
           <p className="text-sm font-semibold uppercase tracking-[0.2em] text-orange-300">Submitted By</p>
           <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-            
-            <input
-              type="text"
-              value={leadershipForm.submitterName}
-              onChange={(e) => updateLeadershipField('submitterName', e.target.value)}
-              placeholder="Name"
-              className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-white outline-none placeholder:text-slate-400"
-            />
-            <input
-              type="text"
-              value={leadershipForm.submitterContact}
-              onChange={(e) => updateLeadershipField('submitterContact', e.target.value)}
-              placeholder="Contact"
-              className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-white outline-none placeholder:text-slate-400"
-            />
-            <input
-              type="email"
-              value={leadershipForm.submitterEmail}
-              onChange={(e) => updateLeadershipField('submitterEmail', e.target.value)}
-              placeholder="Email"
-              className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-white outline-none placeholder:text-slate-400"
-            />
+            <div>
+              <input
+                type="text"
+                value={leadershipForm.submitterName}
+                onChange={(e) => updateLeadershipField('submitterName', e.target.value)}
+                placeholder="Name"
+                className={`w-full rounded-2xl border px-4 py-3 text-white outline-none placeholder:text-slate-400 ${leadershipErrors.submitterName ? 'border-red-400 bg-red-500/10' : 'border-white/10 bg-white/5'}`}
+              />
+              {leadershipErrors.submitterName && (
+                <p className="mt-2 text-sm text-red-300">{leadershipErrors.submitterName}</p>
+              )}
+            </div>
+
+            <div>
+              <input
+                type="text"
+                value={leadershipForm.submitterContact}
+                onChange={(e) => updateLeadershipField('submitterContact', e.target.value)}
+                placeholder="Contact"
+                className={`w-full rounded-2xl border px-4 py-3 text-white outline-none placeholder:text-slate-400 ${leadershipErrors.submitterContact ? 'border-red-400 bg-red-500/10' : 'border-white/10 bg-white/5'}`}
+              />
+              {leadershipErrors.submitterContact && (
+                <p className="mt-2 text-sm text-red-300">{leadershipErrors.submitterContact}</p>
+              )}
+            </div>
+
+            <div>
+              <input
+                type="email"
+                value={leadershipForm.submitterEmail}
+                onChange={(e) => updateLeadershipField('submitterEmail', e.target.value)}
+                placeholder="Email"
+                className={`w-full rounded-2xl border px-4 py-3 text-white outline-none placeholder:text-slate-400 ${leadershipErrors.submitterEmail ? 'border-red-400 bg-red-500/10' : 'border-white/10 bg-white/5'}`}
+              />
+              {leadershipErrors.submitterEmail && (
+                <p className="mt-2 text-sm text-red-300">{leadershipErrors.submitterEmail}</p>
+              )}
+            </div>
           </div>
         </div>
         <div className="rounded-3xl border border-white/10 bg-slate-900 p-8 shadow-xl">
@@ -702,7 +783,7 @@ export default function ECCClubWebsite() {
 
           <div className="mt-8 space-y-6">
             <div>
-              <label className="block text-sm font-semibold text-white">Vajras Captaincy needs to change from last year</label>
+              <label className="block text-sm font-semibold text-white">Vajras Captaincy-Change from last year</label>
               <div className="mt-3 flex gap-3">
                 {['Yes', 'No'].map((option) => {
                   const active = leadershipForm.vajrasCaptainChange === option;
@@ -711,26 +792,34 @@ export default function ECCClubWebsite() {
                       key={option}
                       type="button"
                       onClick={() => updateLeadershipField('vajrasCaptainChange', option)}
-                      className={active ? 'rounded-2xl bg-orange-500 px-5 py-3 text-sm font-semibold text-white transition' : 'rounded-2xl border border-white/10 bg-white/5 px-5 py-3 text-sm font-semibold text-slate-200 transition hover:bg-white/10'}
+                      className={active ? 'rounded-2xl bg-orange-500 px-5 py-3 text-sm font-semibold text-white transition' : `rounded-2xl border px-5 py-3 text-sm font-semibold text-slate-200 transition hover:bg-white/10 ${leadershipErrors.vajrasCaptainChange ? 'border-red-400 bg-red-500/10' : 'border-white/10 bg-white/5'}`}
                     >
                       {option}
                     </button>
                   );
                 })}
               </div>
+              {leadershipErrors.vajrasCaptainChange && (
+                <p className="mt-2 text-sm text-red-300">{leadershipErrors.vajrasCaptainChange}</p>
+              )}
               {leadershipForm.vajrasCaptainChange === 'Yes' && (
-                <input
-                  type="text"
-                  value={leadershipForm.vajrasCaptainNominee}
-                  onChange={(e) => updateLeadershipField('vajrasCaptainNominee', e.target.value)}
-                  placeholder="Nominate the captain"
-                  className="mt-4 w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-white outline-none placeholder:text-slate-400"
-                />
+                <div>
+                  <input
+                    type="text"
+                    value={leadershipForm.vajrasCaptainNominee}
+                    onChange={(e) => updateLeadershipField('vajrasCaptainNominee', e.target.value)}
+                    placeholder="Nominate Vajras Captain"
+                    className={`mt-4 w-full rounded-2xl border px-4 py-3 text-white outline-none placeholder:text-slate-400 ${leadershipErrors.vajrasCaptainNominee ? 'border-red-400 bg-red-500/10' : 'border-white/10 bg-white/5'}`}
+                  />
+                  {leadershipErrors.vajrasCaptainNominee && (
+                    <p className="mt-2 text-sm text-red-300">{leadershipErrors.vajrasCaptainNominee}</p>
+                  )}
+                </div>
               )}
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-white">Vajras Vice Captaincy needs to change from last year</label>
+              <label className="block text-sm font-semibold text-white">Vajras Vice Captaincy-Change from last year</label>
               <div className="mt-3 flex gap-3">
                 {['Yes', 'No'].map((option) => {
                   const active = leadershipForm.vajrasViceCaptainChange === option;
@@ -739,21 +828,29 @@ export default function ECCClubWebsite() {
                       key={option}
                       type="button"
                       onClick={() => updateLeadershipField('vajrasViceCaptainChange', option)}
-                      className={active ? 'rounded-2xl bg-orange-500 px-5 py-3 text-sm font-semibold text-white transition' : 'rounded-2xl border border-white/10 bg-white/5 px-5 py-3 text-sm font-semibold text-slate-200 transition hover:bg-white/10'}
+                      className={active ? 'rounded-2xl bg-orange-500 px-5 py-3 text-sm font-semibold text-white transition' : `rounded-2xl border px-5 py-3 text-sm font-semibold text-slate-200 transition hover:bg-white/10 ${leadershipErrors.vajrasViceCaptainChange ? 'border-red-400 bg-red-500/10' : 'border-white/10 bg-white/5'}`}
                     >
                       {option}
                     </button>
                   );
                 })}
               </div>
+              {leadershipErrors.vajrasViceCaptainChange && (
+                <p className="mt-2 text-sm text-red-300">{leadershipErrors.vajrasViceCaptainChange}</p>
+              )}
               {leadershipForm.vajrasViceCaptainChange === 'Yes' && (
-                <input
-                  type="text"
-                  value={leadershipForm.vajrasViceCaptainNominee}
-                  onChange={(e) => updateLeadershipField('vajrasViceCaptainNominee', e.target.value)}
-                  placeholder="Nominate VC"
-                  className="mt-4 w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-white outline-none placeholder:text-slate-400"
-                />
+                <div>
+                  <input
+                    type="text"
+                    value={leadershipForm.vajrasViceCaptainNominee}
+                    onChange={(e) => updateLeadershipField('vajrasViceCaptainNominee', e.target.value)}
+                    placeholder="Nominate Vajras VC"
+                    className={`mt-4 w-full rounded-2xl border px-4 py-3 text-white outline-none placeholder:text-slate-400 ${leadershipErrors.vajrasViceCaptainNominee ? 'border-red-400 bg-red-500/10' : 'border-white/10 bg-white/5'}`}
+                  />
+                  {leadershipErrors.vajrasViceCaptainNominee && (
+                    <p className="mt-2 text-sm text-red-300">{leadershipErrors.vajrasViceCaptainNominee}</p>
+                  )}
+                </div>
               )}
             </div>
           </div>
@@ -765,7 +862,7 @@ export default function ECCClubWebsite() {
 
           <div className="mt-8 space-y-6">
             <div>
-              <label className="block text-sm font-semibold text-white">Garudas Captaincy Interested</label>
+              <label className="block text-sm font-semibold text-white">Garudas Captaincy-Change from Last Year</label>
               <div className="mt-3 flex gap-3">
                 {['Yes', 'No'].map((option) => {
                   const active = leadershipForm.garudasCaptainInterested === option;
@@ -774,26 +871,34 @@ export default function ECCClubWebsite() {
                       key={option}
                       type="button"
                       onClick={() => updateLeadershipField('garudasCaptainInterested', option)}
-                      className={active ? 'rounded-2xl bg-orange-500 px-5 py-3 text-sm font-semibold text-white transition' : 'rounded-2xl border border-white/10 bg-white/5 px-5 py-3 text-sm font-semibold text-slate-200 transition hover:bg-white/10'}
+                      className={active ? 'rounded-2xl bg-orange-500 px-5 py-3 text-sm font-semibold text-white transition' : `rounded-2xl border px-5 py-3 text-sm font-semibold text-slate-200 transition hover:bg-white/10 ${leadershipErrors.garudasCaptainInterested ? 'border-red-400 bg-red-500/10' : 'border-white/10 bg-white/5'}`}
                     >
                       {option}
                     </button>
                   );
                 })}
               </div>
+              {leadershipErrors.garudasCaptainInterested && (
+                <p className="mt-2 text-sm text-red-300">{leadershipErrors.garudasCaptainInterested}</p>
+              )}
               {leadershipForm.garudasCaptainInterested === 'Yes' && (
-                <input
-                  type="text"
-                  value={leadershipForm.garudasCaptainNominee}
-                  onChange={(e) => updateLeadershipField('garudasCaptainNominee', e.target.value)}
-                  placeholder="Nominate Garudas Captain"
-                  className="mt-4 w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-white outline-none placeholder:text-slate-400"
-                />
+                <div>
+                  <input
+                    type="text"
+                    value={leadershipForm.garudasCaptainNominee}
+                    onChange={(e) => updateLeadershipField('garudasCaptainNominee', e.target.value)}
+                    placeholder="Nominate Garudas Captain"
+                    className={`mt-4 w-full rounded-2xl border px-4 py-3 text-white outline-none placeholder:text-slate-400 ${leadershipErrors.garudasCaptainNominee ? 'border-red-400 bg-red-500/10' : 'border-white/10 bg-white/5'}`}
+                  />
+                  {leadershipErrors.garudasCaptainNominee && (
+                    <p className="mt-2 text-sm text-red-300">{leadershipErrors.garudasCaptainNominee}</p>
+                  )}
+                </div>
               )}
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-white">Garudas VC Interested</label>
+              <label className="block text-sm font-semibold text-white">Garudas Vice Captaincy – Change from Last Year</label>
               <div className="mt-3 flex gap-3">
                 {['Yes', 'No'].map((option) => {
                   const active = leadershipForm.garudasViceCaptainInterested === option;
@@ -802,21 +907,29 @@ export default function ECCClubWebsite() {
                       key={option}
                       type="button"
                       onClick={() => updateLeadershipField('garudasViceCaptainInterested', option)}
-                      className={active ? 'rounded-2xl bg-orange-500 px-5 py-3 text-sm font-semibold text-white transition' : 'rounded-2xl border border-white/10 bg-white/5 px-5 py-3 text-sm font-semibold text-slate-200 transition hover:bg-white/10'}
+                      className={active ? 'rounded-2xl bg-orange-500 px-5 py-3 text-sm font-semibold text-white transition' : `rounded-2xl border px-5 py-3 text-sm font-semibold text-slate-200 transition hover:bg-white/10 ${leadershipErrors.garudasViceCaptainInterested ? 'border-red-400 bg-red-500/10' : 'border-white/10 bg-white/5'}`}
                     >
                       {option}
                     </button>
                   );
                 })}
               </div>
+              {leadershipErrors.garudasViceCaptainInterested && (
+                <p className="mt-2 text-sm text-red-300">{leadershipErrors.garudasViceCaptainInterested}</p>
+              )}
               {leadershipForm.garudasViceCaptainInterested === 'Yes' && (
-                <input
-                  type="text"
-                  value={leadershipForm.garudasViceCaptainNominee}
-                  onChange={(e) => updateLeadershipField('garudasViceCaptainNominee', e.target.value)}
-                  placeholder="Nominate Garudas VC"
-                  className="mt-4 w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-white outline-none placeholder:text-slate-400"
-                />
+                <div>
+                  <input
+                    type="text"
+                    value={leadershipForm.garudasViceCaptainNominee}
+                    onChange={(e) => updateLeadershipField('garudasViceCaptainNominee', e.target.value)}
+                    placeholder="Nominate Garudas VC"
+                    className={`mt-4 w-full rounded-2xl border px-4 py-3 text-white outline-none placeholder:text-slate-400 ${leadershipErrors.garudasViceCaptainNominee ? 'border-red-400 bg-red-500/10' : 'border-white/10 bg-white/5'}`}
+                  />
+                  {leadershipErrors.garudasViceCaptainNominee && (
+                    <p className="mt-2 text-sm text-red-300">{leadershipErrors.garudasViceCaptainNominee}</p>
+                  )}
+                </div>
               )}
             </div>
           </div>
@@ -824,9 +937,10 @@ export default function ECCClubWebsite() {
           <button
             type="button"
             onClick={handleLeadershipSubmit}
-            className="mt-8 w-full rounded-2xl bg-orange-500 px-5 py-3 font-semibold text-white shadow-lg transition hover:scale-[1.01]"
+            disabled={isSubmittingLeadership}
+            className="mt-8 w-full rounded-2xl bg-orange-500 px-5 py-3 font-semibold text-white shadow-lg transition hover:scale-[1.01] disabled:cursor-not-allowed disabled:opacity-60"
           >
-            Submit Leadership Form
+            {isSubmittingLeadership ? "Submitting..." : "Submit Leadership Form"}
           </button>
         </div>
       </div>
