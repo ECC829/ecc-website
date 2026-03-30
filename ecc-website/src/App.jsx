@@ -621,6 +621,26 @@ export default function ECCClubWebsite() {
       ...(field === "garudasCaptainInterested" && value !== "Yes" ? { garudasCaptainNominee: "" } : {}),
       ...(field === "garudasViceCaptainInterested" && value !== "Yes" ? { garudasViceCaptainNominee: "" } : {}),
     }));
+
+    setLeadershipErrors((prev) => {
+      const next = { ...prev };
+      delete next[field];
+
+      if (field === "vajrasCaptainChange" && value !== "Yes") {
+        delete next.vajrasCaptainNominee;
+      }
+      if (field === "vajrasViceCaptainChange" && value !== "Yes") {
+        delete next.vajrasViceCaptainNominee;
+      }
+      if (field === "garudasCaptainInterested" && value !== "Yes") {
+        delete next.garudasCaptainNominee;
+      }
+      if (field === "garudasViceCaptainInterested" && value !== "Yes") {
+        delete next.garudasViceCaptainNominee;
+      }
+
+      return next;
+    });
   };
 
   const validateLeadershipForm = () => {
@@ -808,7 +828,7 @@ Your input is valuable in helping us identify strong leaders who can represent t
                     type="text"
                     value={leadershipForm.vajrasCaptainNominee}
                     onChange={(e) => updateLeadershipField('vajrasCaptainNominee', e.target.value)}
-                    placeholder="Nominate Vajras Captain"
+                    placeholder="Nominate Vajras captain"
                     className={`mt-4 w-full rounded-2xl border px-4 py-3 text-white outline-none placeholder:text-slate-400 ${leadershipErrors.vajrasCaptainNominee ? 'border-red-400 bg-red-500/10' : 'border-white/10 bg-white/5'}`}
                   />
                   {leadershipErrors.vajrasCaptainNominee && (
