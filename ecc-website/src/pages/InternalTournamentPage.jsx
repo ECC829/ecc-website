@@ -127,31 +127,13 @@ function readSignedUp() {
   }
 }
 
-const roleOrder = ["All", "Batsman", "Bowler", "Allrounder", "Wicket Keeper"];
-const roleLabels = {
-  All: "All",
-  Batsman: "Batsmen",
-  Bowler: "Bowlers",
-  Allrounder: "Allrounders",
-  "Wicket Keeper": "Keepers",
-};
-
 function initialsOf(name) {
   const parts = name.replace(".", "").split(" ").filter(Boolean);
   return ((parts[0]?.[0] ?? "") + (parts[1]?.[0] ?? "")).toUpperCase() || "?";
 }
 
 function PlayerPool({ players, loading }) {
-  const [filter, setFilter] = useState("All");
-  const [captainsOnly, setCaptainsOnly] = useState(false);
   if (!t.showPlayerNames || !googleSheetEndpoint) return null;
-
-  const list = (players ?? []).filter(
-    (p) => (filter === "All" || p.role === filter) && (!captainsOnly || p.captain)
-  );
-  const roles = roleOrder.filter(
-    (role) => role === "All" || (players ?? []).some((p) => p.role === role)
-  );
 
   return (
     <Section className="border-b border-white/[0.07]">
@@ -159,7 +141,7 @@ function PlayerPool({ players, loading }) {
         <SectionHeading
           eyebrow="The pool"
           title="Who's signed up"
-          lead="Everyone in the auction pool so far. Captains are drawn by lottery from the nominees."
+          lead="Everyone who has signed up for the tournament so far."
           action={
             players && (
               <span className="font-mono text-[11px] uppercase tracking-widest text-slate-500">
@@ -169,43 +151,11 @@ function PlayerPool({ players, loading }) {
           }
         />
 
-        {players && players.length > 0 && (
-          <div className="mt-8 flex flex-wrap items-center gap-2">
-            {roles.map((role) => (
-              <button
-                key={role}
-                type="button"
-                onClick={() => setFilter(role)}
-                className={`rounded-full border px-4 py-1.5 text-[11px] font-semibold uppercase tracking-widest transition ${
-                  filter === role
-                    ? "border-gold-400 bg-gold-400 text-ink-950"
-                    : "border-white/10 text-slate-400 hover:border-white/25 hover:text-white"
-                }`}
-              >
-                {roleLabels[role]}
-              </button>
-            ))}
-            <span className="mx-1 h-5 w-px bg-white/10" aria-hidden="true" />
-            <button
-              type="button"
-              onClick={() => setCaptainsOnly((v) => !v)}
-              aria-pressed={captainsOnly}
-              className={`rounded-full border px-4 py-1.5 text-[11px] font-semibold uppercase tracking-widest transition ${
-                captainsOnly
-                  ? "border-gold-400/60 bg-gold-400/15 text-gold-300"
-                  : "border-white/10 text-slate-400 hover:border-white/25 hover:text-white"
-              }`}
-            >
-              ★ Captain nominees
-            </button>
-          </div>
-        )}
-
-        <div className="mt-6">
+        <div className="mt-8">
           {!players && loading && (
-            <div className="grid grid-cols-2 gap-2 sm:gap-3 lg:grid-cols-4">
+            <div className="grid grid-cols-2 gap-2 sm:gap-3 md:grid-cols-3 lg:grid-cols-4">
               {Array.from({ length: 8 }, (_, i) => (
-                <div key={i} className="h-[68px] animate-pulse rounded-xl bg-white/[0.04]" />
+                <div key={i} className="h-[60px] animate-pulse rounded-xl bg-white/[0.04]" />
               ))}
             </div>
           )}
@@ -216,39 +166,22 @@ function PlayerPool({ players, loading }) {
             </p>
           )}
 
-          {players && players.length > 0 && list.length === 0 && (
-            <p className="p-6 text-center text-sm text-slate-500">No players match this filter.</p>
-          )}
-
-          {list.length > 0 && (
-            <ul className="grid grid-cols-2 gap-2 sm:gap-3 lg:grid-cols-4">
-              {list.map((p, i) => (
+          {players && players.length > 0 && (
+            <ul className="grid grid-cols-2 gap-2 sm:gap-3 md:grid-cols-3 lg:grid-cols-4">
+              {players.map((p, i) => (
                 <li
                   key={`${p.name}-${i}`}
-                  className="relative flex items-center gap-2.5 rounded-xl border border-white/[0.08] bg-ink-900 p-2.5 sm:gap-3 sm:p-3"
+                  className="flex items-center gap-2.5 rounded-xl border border-white/[0.08] bg-ink-900 p-2.5 sm:gap-3 sm:p-3"
                 >
                   <span
-                    className="flex h-9 w-9 shrink-0 text-sm sm:h-11 sm:w-11 sm:text-base items-center justify-center rounded-lg border border-gold-400/25 bg-gold-400/[0.08] font-display font-bold text-gold-300"
+                    className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-gold-400/25 bg-gold-400/[0.08] font-display text-sm font-bold text-gold-300 sm:h-10 sm:w-10 sm:text-base"
                     aria-hidden="true"
                   >
                     {initialsOf(p.name)}
                   </span>
-                  <span className="min-w-0 flex-1">
-                    <span className="block truncate text-sm font-semibold text-white sm:text-base">
-                      {p.name}
-                    </span>
-                    <span className="mt-0.5 block truncate text-[10px] uppercase tracking-widest text-slate-500 sm:text-[11px]">
-                      {p.role || "Player"}
-                    </span>
+                  <span className="min-w-0 truncate text-sm font-semibold text-white sm:text-base">
+                    {p.name}
                   </span>
-                  {p.captain && (
-                    <span
-                      className="absolute right-2 top-2 rounded-full border border-gold-400/40 bg-gold-400/10 px-1.5 py-0.5 text-[10px] sm:static sm:shrink-0 sm:px-2 font-semibold uppercase tracking-widest text-gold-300"
-                      title="Captain nominee"
-                    >
-                      ★<span className="hidden sm:inline"> Capt</span>
-                    </span>
-                  )}
                 </li>
               ))}
             </ul>

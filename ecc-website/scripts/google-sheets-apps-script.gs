@@ -61,10 +61,10 @@ function doPost(e) {
 
 /**
  * GET without parameters: health check (open the link in a browser).
- * GET ?sheet=<tab name>: returns sign-up counts plus a public player list.
- *   { ok, count, captains, players: [{ name, role, captain }] }
+ * GET ?sheet=<tab name>: returns sign-up counts plus a public list of names.
+ *   { ok, count, captains, players: [{ name }] }
  *   Names are shortened to first name + last initial ("Ravi K."). Emails,
- *   phone numbers and notes are never returned.
+ *   phone numbers, roles, captain choices and notes are never returned.
  */
 function doGet(e) {
   const sheetName = e && e.parameter && e.parameter.sheet;
@@ -80,7 +80,6 @@ function doGet(e) {
   const headers = values.shift();
   const nameCol = headers.indexOf("Name");
   const captainCol = headers.indexOf("Captain nomination");
-  const roleCol = headers.indexOf("Role");
   const rows = values.filter(function (row) {
     return nameCol === -1 || String(row[nameCol]).trim() !== "";
   });
@@ -91,11 +90,7 @@ function doGet(e) {
           return String(row[captainCol]).trim().toLowerCase() === "yes";
         }).length;
   const players = rows.map(function (row) {
-    return {
-      name: publicName(row[nameCol]),
-      role: roleCol === -1 ? "" : String(row[roleCol]).trim(),
-      captain: captainCol !== -1 && String(row[captainCol]).trim().toLowerCase() === "yes",
-    };
+    return { name: publicName(row[nameCol]) };
   });
   return json({ ok: true, count: rows.length, captains: captains, players: players });
 }

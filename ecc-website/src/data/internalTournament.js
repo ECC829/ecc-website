@@ -4,7 +4,7 @@
  */
 export const internalTournament = {
   show: true,
-  /** Show the "Who's signed up" list (first name + last initial, role, captain badge). */
+  /** Show the "Who's signed up" list (first name + last initial only). */
   showPlayerNames: true,
   name: "ECC Internal T7 Tournament",
   shortName: "Internal Tournament",
