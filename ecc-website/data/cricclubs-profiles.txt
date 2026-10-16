@@ -1,0 +1,67 @@
+# ECC player profile pages on CricClubs
+#
+# Paste each player's CricClubs profile URL after the '='.
+# Lines with no URL yet are skipped with a warning — that's fine,
+# fill them in over time and re-run.
+#
+# Then run:   npm run import-stats -- --profiles data/cricclubs-profiles.txt --dry-run
+# and when the output looks right, drop --dry-run.
+#
+# A local file works too:   Umesh = ~/Downloads/umesh.html
+
+# --- Vikings ---
+Raavy Pothela                   = 
+Ajay Manyam                     = 
+# --- Kurralu ---
+Bala Sai Bharath Raju Jayapathi = 
+Balaji Maandapuram              = 
+Jithendra Kumar Pedarla         = 
+Likith Muddu Krishna            = 
+Sravan Kumar Tumu               = 
+# --- Vikings ---
+Santosh Bharadwaj               = 
+# --- Royals ---
+Vishal M                        = 
+Srini Chinnakonda               = 
+Nishanth B                      = 
+Aditya Panchamukh Yalla         = 
+# --- Kurralu ---
+Pavan Kalyan Karimi             = 
+Adithya Radhakrishnan           = 
+# --- Royals ---
+Babi Adireddi                   = 
+Shubhodeep Ghosh                = 
+# --- Vikings ---
+Jayanth Buchala                 = 
+Mohithkumar Bolisetti           = 
+Saivishal Lingala               = 
+# --- Kurralu ---
+Umesh                           = 
+# --- Vikings ---
+Satwik Reddy                    = 
+# --- Royals ---
+Mahesh Mannam                   = 
+# --- Kurralu ---
+Deepak M                        = 
+# --- Vikings ---
+Ajith DV                        = 
+Krishna Vamshi Dampuri          = 
+# --- Royals ---
+Ram Mekala                      = 
+Ramu Yadav                      = 
+# --- Vikings ---
+Sachin Kumar Pradhan            = 
+Satya Prasanna                  = 
+# --- Royals ---
+Naresh Kanyan                   = 
+Sai Kiran N                     = 
+Aman Madathil                   = 
+Nithin                          = 
+# --- Vikings ---
+Achutha Telluri                 = 
+# --- Royals ---
+Satheesh Bommavaram             = 
+# --- Vikings ---
+Saumitra Kulkarni               = 
+Praveen K                       = 
+Vamsi Duggampudi                = 

@@ -1,0 +1,120 @@
+{
+  "raavy-pothela": {
+    "matches": 18,
+    "runs": 542,
+    "battingAverage": 38.7,
+    "strikeRate": 146.2,
+    "wickets": 19,
+    "bowlingEconomy": 6.4,
+    "bestBatting": "78*",
+    "bestBowling": "4/17",
+    "battingStyle": "Right-hand batter",
+    "bowlingStyle": "Right-arm medium",
+    "debutSeason": 2020,
+    "about": "Raavy is one of ECC Vikings' core all-rounders, known for high-intent batting, smart game awareness, and dependable overs in pressure situations. He brings balance to the side and can shift momentum with both bat and ball.",
+    "seasonBatting": [
+      {
+        "year": "Career",
+        "mat": 18,
+        "inns": 16,
+        "no": 3,
+        "runs": 542,
+        "hs": "78*",
+        "avg": 38.7,
+        "bf": 371,
+        "sr": 146.2,
+        "fifties": 4,
+        "fours": 46,
+        "sixes": 21,
+        "ct": 8
+      },
+      {
+        "year": "2026",
+        "mat": 5,
+        "inns": 5,
+        "no": 1,
+        "runs": 162,
+        "hs": "61",
+        "avg": 40.5,
+        "bf": 102,
+        "sr": 158.8,
+        "fifties": 1,
+        "fours": 13,
+        "sixes": 8,
+        "ct": 2
+      },
+      {
+        "year": "2025",
+        "mat": 7,
+        "inns": 6,
+        "no": 1,
+        "runs": 201,
+        "hs": "78*",
+        "avg": 40.2,
+        "bf": 143,
+        "sr": 140.5,
+        "fifties": 2,
+        "fours": 18,
+        "sixes": 7,
+        "ct": 3
+      },
+      {
+        "year": "2024",
+        "mat": 6,
+        "inns": 5,
+        "no": 1,
+        "runs": 179,
+        "hs": "54",
+        "avg": 44.8,
+        "bf": 126,
+        "sr": 142.1,
+        "fifties": 1,
+        "fours": 15,
+        "sixes": 6,
+        "ct": 3
+      }
+    ],
+    "seasonBowling": [
+      {
+        "year": "Career",
+        "mat": 18,
+        "inns": 15,
+        "overs": 42,
+        "runs": 269,
+        "wkts": 19,
+        "bbi": "4/17",
+        "eco": 6.4
+      },
+      {
+        "year": "2026",
+        "mat": 5,
+        "inns": 4,
+        "overs": 12,
+        "runs": 76,
+        "wkts": 6,
+        "bbi": "3/14",
+        "eco": 6.33
+      },
+      {
+        "year": "2025",
+        "mat": 7,
+        "inns": 6,
+        "overs": 18,
+        "runs": 121,
+        "wkts": 8,
+        "bbi": "4/17",
+        "eco": 6.72
+      },
+      {
+        "year": "2024",
+        "mat": 6,
+        "inns": 5,
+        "overs": 12,
+        "runs": 72,
+        "wkts": 5,
+        "bbi": "2/11",
+        "eco": 6
+      }
+    ]
+  }
+}
