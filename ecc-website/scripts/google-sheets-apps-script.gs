@@ -11,7 +11,7 @@
  */
 
 /** Bump this when the script changes, to confirm the new version is live. */
-const SCRIPT_VERSION = 3;
+const SCRIPT_VERSION = 4;
 
 function doPost(e) {
   const lock = LockService.getScriptLock();
@@ -61,8 +61,10 @@ function doPost(e) {
 
 /**
  * GET without parameters: health check (open the link in a browser).
- * GET ?sheet=<tab name>: returns sign-up counts only — never names or contacts.
- *   { ok, count, captains }  where captains = rows with "Captain nomination" = Yes
+ * GET ?sheet=<tab name>: returns sign-up counts plus a public list of names.
+ *   { ok, count, captains, players: [{ name }] }
+ *   Names are shortened to first name + last initial ("Ravi K."). Emails,
+ *   phone numbers, roles, captain choices and notes are never returned.
  */
 function doGet(e) {
   const sheetName = e && e.parameter && e.parameter.sheet;
@@ -70,7 +72,9 @@ function doGet(e) {
     return json({ ok: true, version: SCRIPT_VERSION, message: "ECC form endpoint is running." });
   }
   const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(String(sheetName));
-  if (!sheet || sheet.getLastRow() < 2) return json({ ok: true, count: 0, captains: 0 });
+  if (!sheet || sheet.getLastRow() < 2) {
+    return json({ ok: true, count: 0, captains: 0, players: [] });
+  }
 
   const values = sheet.getRange(1, 1, sheet.getLastRow(), sheet.getLastColumn()).getValues();
   const headers = values.shift();
@@ -85,7 +89,19 @@ function doGet(e) {
       : rows.filter(function (row) {
           return String(row[captainCol]).trim().toLowerCase() === "yes";
         }).length;
-  return json({ ok: true, count: rows.length, captains: captains });
+  const players = rows.map(function (row) {
+    return { name: publicName(row[nameCol]) };
+  });
+  return json({ ok: true, count: rows.length, captains: captains, players: players });
+}
+
+/** "Ravi Kumar Reddy" -> "Ravi R." — first name plus last initial only. */
+function publicName(value) {
+  const parts = String(value || "").trim().split(/\s+/).filter(String);
+  if (parts.length === 0) return "";
+  const first = parts[0].charAt(0).toUpperCase() + parts[0].slice(1);
+  if (parts.length === 1) return first;
+  return first + " " + parts[parts.length - 1].charAt(0).toUpperCase() + ".";
 }
 
 /** True if a row with the same phone (last 10 digits) or email already exists. */

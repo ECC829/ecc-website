@@ -127,6 +127,73 @@ function readSignedUp() {
   }
 }
 
+function initialsOf(name) {
+  const parts = name.replace(".", "").split(" ").filter(Boolean);
+  return ((parts[0]?.[0] ?? "") + (parts[1]?.[0] ?? "")).toUpperCase() || "?";
+}
+
+function PlayerPool({ players, loading }) {
+  if (!t.showPlayerNames || !googleSheetEndpoint) return null;
+  // Older script versions don't send names: keep the section hidden until they do.
+  if (!players && !loading) return null;
+
+  return (
+    <Section className="border-b border-white/[0.07]">
+      <Container>
+        <SectionHeading
+          eyebrow="The pool"
+          title="Who's signed up"
+          lead="Everyone who has signed up for the tournament so far."
+          action={
+            players && (
+              <span className="font-mono text-[11px] uppercase tracking-widest text-slate-500">
+                {players.length} {players.length === 1 ? "player" : "players"}
+              </span>
+            )
+          }
+        />
+
+        <div className="mt-8">
+          {!players && loading && (
+            <div className="grid grid-cols-2 gap-2 sm:gap-3 md:grid-cols-3 lg:grid-cols-4">
+              {Array.from({ length: 8 }, (_, i) => (
+                <div key={i} className="h-[60px] animate-pulse rounded-xl bg-white/[0.04]" />
+              ))}
+            </div>
+          )}
+
+          {players && players.length === 0 && (
+            <p className="rounded-xl border border-dashed border-white/10 p-8 text-center text-sm text-slate-500">
+              No sign-ups yet — be the first in the pool.
+            </p>
+          )}
+
+          {players && players.length > 0 && (
+            <ul className="grid grid-cols-2 gap-2 sm:gap-3 md:grid-cols-3 lg:grid-cols-4">
+              {players.map((p, i) => (
+                <li
+                  key={`${p.name}-${i}`}
+                  className="flex items-center gap-2.5 rounded-xl border border-white/[0.08] bg-ink-900 p-2.5 sm:gap-3 sm:p-3"
+                >
+                  <span
+                    className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-gold-400/25 bg-gold-400/[0.08] font-display text-sm font-bold text-gold-300 sm:h-10 sm:w-10 sm:text-base"
+                    aria-hidden="true"
+                  >
+                    {initialsOf(p.name)}
+                  </span>
+                  <span className="min-w-0 truncate text-sm font-semibold text-white sm:text-base">
+                    {p.name}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      </Container>
+    </Section>
+  );
+}
+
 function SignupForm({ onSignedUp, onSaved }) {
   const [previous, setPrevious] = useState(readSignedUp);
   const { values, errors, setErrors, setField, status, setStatus, reset } = useForm({
@@ -455,6 +522,8 @@ export default function InternalTournamentPage() {
           </div>
         </Container>
       </header>
+
+      <PlayerPool players={counts?.players ?? null} loading={loading} />
 
       {/* How it works */}
       <Section id="how-it-works">

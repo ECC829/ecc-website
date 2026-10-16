@@ -81,8 +81,9 @@ export function useSignupCounts(sheet) {
   const addOne = useCallback(
     (isCaptain) => {
       setCounts((prev) => {
-        const base = prev ?? { count: 0, captains: 0 };
+        const base = prev ?? { count: 0, captains: 0, players: null };
         const next = {
+          ...base,
           count: base.count + 1,
           captains: base.captains + (isCaptain ? 1 : 0),
         };
