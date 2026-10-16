@@ -134,6 +134,8 @@ function initialsOf(name) {
 
 function PlayerPool({ players, loading }) {
   if (!t.showPlayerNames || !googleSheetEndpoint) return null;
+  // Older script versions don't send names: keep the section hidden until they do.
+  if (!players && !loading) return null;
 
   return (
     <Section className="border-b border-white/[0.07]">
