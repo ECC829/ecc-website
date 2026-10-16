@@ -1,3 +1,104 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  :root {
+    color-scheme: dark;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    @apply bg-ink-950 font-sans text-slate-200 antialiased;
+  }
+
+  ::selection {
+    @apply bg-gold-400 text-ink-950;
+  }
+
+  /* Slim, on-brand scrollbar */
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    @apply bg-ink-950;
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply rounded-full bg-ink-700;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-gold-700;
+  }
+
+  :focus-visible {
+    @apply outline-none ring-2 ring-gold-400 ring-offset-2 ring-offset-ink-950;
+  }
+}
+
+@layer components {
+  .eyebrow {
+    @apply text-[11px] font-semibold uppercase tracking-ultra text-gold-400;
+  }
+
+  .headline {
+    @apply font-display font-bold uppercase leading-[0.92] tracking-tight text-white;
+  }
+
+  .surface {
+    @apply rounded-2xl border border-white/[0.08] bg-ink-900/80 backdrop-blur-sm;
+  }
+
+  .surface-hover {
+    @apply transition duration-300 hover:border-gold-400/40 hover:bg-ink-850;
+  }
+
+  .field {
+    @apply w-full rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 text-[15px] text-white outline-none transition placeholder:text-slate-500 focus:border-gold-400/60 focus:bg-white/[0.06];
+  }
+
+  .field-error {
+    @apply border-red-500/60 bg-red-500/[0.07];
+  }
+
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl px-6 py-3 text-sm font-semibold uppercase tracking-widest transition duration-200 disabled:cursor-not-allowed disabled:opacity-50;
+  }
+
+  .btn-primary {
+    @apply btn bg-gold-400 text-ink-950 shadow-[0_10px_30px_-12px_rgba(232,178,52,0.8)] hover:bg-gold-300 active:translate-y-px;
+  }
+
+  .btn-ghost {
+    @apply btn border border-white/15 text-white hover:border-gold-400/50 hover:bg-white/[0.06];
+  }
+
+  .hairline {
+    @apply h-px w-full bg-gradient-to-r from-transparent via-white/15 to-transparent;
+  }
+
+  .diag-stripes {
+    background-image: repeating-linear-gradient(
+      -45deg,
+      rgba(232, 178, 52, 0.07) 0px,
+      rgba(232, 178, 52, 0.07) 1px,
+      transparent 1px,
+      transparent 9px
+    );
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
