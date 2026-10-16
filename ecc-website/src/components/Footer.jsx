@@ -9,6 +9,7 @@ const columns = [
     links: [
       { label: "About ECC", to: "/about" },
       { label: "Tournaments", to: "/tournaments" },
+      { label: "Achievements", to: "/achievements" },
       { label: "Teams", to: "/teams" },
       { label: "Players", to: "/players" },
     ],

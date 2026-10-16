@@ -10,6 +10,7 @@ import PlayerProfilePage from "./pages/PlayerProfilePage";
 import LeadershipPage from "./pages/LeadershipPage";
 import { showLeadership } from "./data/club";
 import InternalTournamentPage from "./pages/InternalTournamentPage";
+import AchievementsPage from "./pages/AchievementsPage";
 import { internalTournament } from "./data/internalTournament";
 import SocialPage from "./pages/SocialPage";
 import SponsorPage from "./pages/SponsorPage";
@@ -27,6 +28,7 @@ export default function App() {
         {internalTournament.show && (
           <Route path="internal-tournament" element={<InternalTournamentPage />} />
         )}
+        <Route path="achievements" element={<AchievementsPage />} />
         <Route path="teams" element={<TeamsPage />} />
         <Route path="teams/:slug" element={<TeamDetailPage />} />
         <Route path="players" element={<PlayersPage />} />

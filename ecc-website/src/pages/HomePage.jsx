@@ -12,6 +12,7 @@ import { teams } from "../data/teams";
 import { players, countByRole } from "../data/players";
 import { allEvents, cities } from "../data/tournaments";
 import SponsorGrid from "../components/Sponsors";
+import { captionOf, featuredAchievements, photoUrl } from "../data/achievements";
 import { internalTournament as it } from "../data/internalTournament";
 import { useSignupCounts } from "../lib/useSignupCounts";
 
@@ -334,6 +335,51 @@ export default function HomePage() {
           </div>
         </Container>
       </Section>
+      )}
+
+      {/* Recent wins */}
+      {featuredAchievements.length > 0 && (
+        <Section className="border-t border-white/[0.07]">
+          <Container>
+            <SectionHeading
+              eyebrow="Trophy cabinet"
+              title="Recent wins"
+              lead="Titles and finals from ECC sides across Central Ohio."
+              action={<ArrowLink to="/achievements">All achievements</ArrowLink>}
+            />
+            <div
+              className={`mt-10 grid grid-cols-2 gap-3 sm:gap-4 ${
+                featuredAchievements.length === 3 ? "sm:grid-cols-3" : "lg:grid-cols-4"
+              }`}
+            >
+              {featuredAchievements.map((item) => (
+                <Link
+                  key={item.id}
+                  to="/achievements"
+                  className="group relative block aspect-[4/5] overflow-hidden rounded-2xl border border-white/[0.08] bg-ink-900 transition hover:border-gold-400/40"
+                >
+                  <img
+                    src={photoUrl(item.id, "small")}
+                    alt={captionOf(item) || "ECC trophy photo"}
+                    loading="lazy"
+                    decoding="async"
+                    className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.04]"
+                  />
+                  <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent p-3 pt-10 sm:p-4">
+                    {item.result && (
+                      <span className="block font-mono text-[10px] uppercase tracking-widest text-gold-300">
+                        {item.result.split(" · ")[0]}
+                      </span>
+                    )}
+                    <span className="mt-1 block font-display text-base font-bold uppercase leading-tight tracking-wide text-white sm:text-lg">
+                      {item.tournament || item.team || "ECC trophy win"}
+                    </span>
+                  </span>
+                </Link>
+              ))}
+            </div>
+          </Container>
+        </Section>
       )}
 
       {/* Sponsors */}

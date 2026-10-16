@@ -1,0 +1,190 @@
+/**
+ * Trophy photos for the Achievements page and the homepage "Recent wins" strip.
+ *
+ * Photos live in public/achievements/ as <id>.webp (full size) and
+ * <id>-sm.webp (thumbnail). To add one, drop both files there and add an
+ * entry below. Leave a field as "" if you don't know it — it is just hidden.
+ * `featured: true` puts the photo on the homepage strip (first four shown).
+ */
+export const achievements = [
+  {
+    id: "win-02",
+    tournament: "Dublin Cricket Club T15 – Division 2",
+    result: "Winners",
+    team: "Royals",
+    year: "2026",
+    featured: true,
+    width: 720,
+    height: 491,
+  },
+  {
+    id: "win-04",
+    tournament: "PDCC T15 – Division 2",
+    result: "Winners",
+    team: "Vikings",
+    year: "2026",
+    featured: true,
+    width: 720,
+    height: 506,
+  },
+  {
+    id: "win-05",
+    tournament: "TANA One-Day T7 Tournament",
+    result: "Winners",
+    team: "Kurralu",
+    year: "2026",
+    featured: true,
+    width: 720,
+    height: 540,
+  },
+  {
+    id: "win-06",
+    tournament: "TACO One-Day T7 Tournament",
+    result: "Winners",
+    team: "Kurralu",
+    year: "2026",
+    featured: true,
+    width: 720,
+    height: 540,
+  },
+  {
+    id: "win-14",
+    tournament: "Columbus Super Kings One-Day T7 Tournament",
+    result: "Winners",
+    team: "Kurralu",
+    year: "2026",
+    featured: false,
+    width: 720,
+    height: 540,
+  },
+  {
+    id: "win-01",
+    tournament: "Hurricanes One-Day T7 Tournament",
+    result: "Runners-up",
+    team: "Kurralu",
+    year: "2026",
+    featured: false,
+    width: 540,
+    height: 720,
+  },
+  {
+    id: "win-03",
+    tournament: "PDCC T15 – Division 2",
+    result: "Runners-up",
+    team: "Royals",
+    year: "2026",
+    featured: false,
+    width: 576,
+    height: 720,
+  },
+  {
+    id: "win-07",
+    tournament: "Cricket Buddies T10",
+    result: "Runners-up",
+    team: "BleedBlue",
+    year: "2026",
+    featured: false,
+    width: 720,
+    height: 540,
+  },
+  {
+    id: "win-08",
+    tournament: "TANA One-Day T7 Tournament",
+    result: "Winners",
+    team: "BleedBlue",
+    year: "2025",
+    featured: false,
+    width: 720,
+    height: 562,
+  },
+  {
+    id: "win-09",
+    tournament: "KPL One-Day T7 Tournament",
+    result: "Winners",
+    team: "Kurralu",
+    year: "2025",
+    featured: false,
+    width: 720,
+    height: 510,
+  },
+  {
+    id: "win-13",
+    tournament: "Columbus Cricket Club T15 – Division 1",
+    result: "Winners",
+    team: "Kurralu",
+    year: "2025",
+    featured: false,
+    width: 720,
+    height: 405,
+  },
+  {
+    id: "win-15",
+    tournament: "PDCC T15 – Division 2",
+    result: "Winners",
+    team: "Royals",
+    year: "2025",
+    featured: false,
+    width: 720,
+    height: 328,
+  },
+  {
+    id: "win-16",
+    tournament: "TACO One-Day T7 Tournament",
+    result: "Winners",
+    team: "Kurralu",
+    year: "2025",
+    featured: false,
+    width: 720,
+    height: 423,
+  },
+  {
+    id: "win-10",
+    tournament: "Red Inkers One-Day T7 Tournament",
+    result: "Runners-up",
+    team: "Kurralu",
+    year: "2025",
+    featured: false,
+    width: 720,
+    height: 457,
+  },
+  {
+    id: "win-11",
+    tournament: "MCT T20 – Division 2",
+    result: "Runners-up",
+    team: "Vajras",
+    year: "2025",
+    featured: false,
+    width: 720,
+    height: 481,
+  },
+  {
+    id: "win-12",
+    tournament: "Dublin Premier League T20 – Division 1",
+    result: "Runners-up",
+    team: "Vajras",
+    year: "2025",
+    featured: false,
+    width: 720,
+    height: 391,
+  },
+  {
+    id: "win-17",
+    tournament: "Super Chargers One-Day T7 Tournament",
+    result: "Runners-up",
+    team: "BleedBlue",
+    year: "2025",
+    featured: false,
+    width: 720,
+    height: 500,
+  },
+];
+
+export const featuredAchievements = achievements.filter((a) => a.featured).slice(0, 4);
+
+export const photoUrl = (id, size = "full") =>
+  `${import.meta.env.BASE_URL}achievements/${id}${size === "small" ? "-sm" : ""}.webp`;
+
+/** Caption text, e.g. "Hurricanes One-Day Tournament · Runners-up · Kurralu · 2026". */
+export function captionOf(a) {
+  return [a.tournament, a.result, a.team, a.year].filter(Boolean).join(" · ");
+}
