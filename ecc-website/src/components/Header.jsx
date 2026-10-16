@@ -80,7 +80,7 @@ export default function Header() {
         )}
       >
         <div className="mx-auto flex h-[72px] w-full max-w-6xl items-center justify-between gap-6 px-5 sm:px-8">
-          <Link to="/" className="group flex items-center gap-3">
+          <Link to="/" className="group flex shrink-0 items-center gap-3">
             <img
               src={club.logo}
               alt=""
@@ -90,7 +90,7 @@ export default function Header() {
               <span className="block font-display text-2xl font-bold uppercase tracking-wide text-white">
                 {club.shortName}
               </span>
-              <span className="mt-0.5 block whitespace-nowrap text-[10px] lg:hidden xl:block font-semibold uppercase tracking-ultra text-slate-500">
+              <span className="mt-0.5 block whitespace-nowrap text-[10px] lg:hidden font-semibold uppercase tracking-ultra text-slate-500">
                 {club.tagline}
               </span>
             </span>
