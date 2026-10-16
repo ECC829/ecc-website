@@ -66,7 +66,15 @@ export async function submitToSheet({ endpoint, sheet, fields, website = "" }) {
  */
 export async function fetchSheetCounts({ endpoint, sheet }) {
   const url = `${endpoint}?sheet=${encodeURIComponent(sheet)}`;
-  const res = await fetch(url);
+  // Give up after 12 s so the page never shows loading placeholders forever.
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 12000);
+  let res;
+  try {
+    res = await fetch(url, { signal: controller.signal });
+  } finally {
+    clearTimeout(timer);
+  }
   if (!res.ok) return null;
   const data = await res.json();
   if (!data?.ok || typeof data.count !== "number") return null;
