@@ -8,9 +8,10 @@ import { prefetchSignupCounts } from "../lib/useSignupCounts";
 const tournamentSheet = `${internalTournament.shortName} ${internalTournament.year}`;
 
 const navItems = [
-  { to: "/", label: "Home", end: true },
+  { to: "/", label: "Home", end: true, mobileOnly: true },
   { to: "/about", label: "About" },
   { to: "/tournaments", label: "Tournaments" },
+  { to: "/achievements", label: "Trophies" },
   ...(internalTournament.show
     ? [{ to: "/internal-tournament", label: "Internal T7" }]
     : []),
@@ -97,7 +98,7 @@ export default function Header() {
           </Link>
 
           <nav className="hidden items-center gap-5 lg:flex xl:gap-7" aria-label="Primary">
-            {navItems.map((item) => (
+            {navItems.filter((item) => !item.mobileOnly).map((item) => (
               <NavLink
                 key={item.to}
                 to={item.to}

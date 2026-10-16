@@ -1,0 +1,190 @@
+/**
+ * Trophy photos for the Achievements page and the homepage "Recent wins" strip.
+ *
+ * Photos live in public/achievements/ as <id>.webp (full size) and
+ * <id>-sm.webp (thumbnail). To add one, drop both files there and add an
+ * entry below. Leave a field as "" if you don't know it — it is just hidden.
+ * `featured: true` puts the photo on the homepage strip (first four shown).
+ */
+export const achievements = [
+  {
+    id: "win-01",
+    tournament: "Hurricanes One-Day Tournament",
+    result: "Runners-up",
+    team: "Kurralu",
+    year: "2026",
+    featured: true,
+    width: 540,
+    height: 720,
+  },
+  {
+    id: "win-02",
+    tournament: "DCC T15",
+    result: "Champions",
+    team: "Royals",
+    year: "",
+    featured: true,
+    width: 720,
+    height: 491,
+  },
+  {
+    id: "win-03",
+    tournament: "PDCC Division 2",
+    result: "Winners: Vikings \u00b7 Runners-up: Royals",
+    team: "Vikings & Royals",
+    year: "",
+    featured: true,
+    width: 576,
+    height: 720,
+  },
+  {
+    id: "win-04",
+    tournament: "",
+    result: "Trophy win",
+    team: "",
+    year: "",
+    featured: false,
+    width: 720,
+    height: 506,
+  },
+  {
+    id: "win-05",
+    tournament: "",
+    result: "Trophy win",
+    team: "Kurralu",
+    year: "",
+    featured: false,
+    width: 720,
+    height: 540,
+  },
+  {
+    id: "win-06",
+    tournament: "",
+    result: "Trophy win",
+    team: "",
+    year: "",
+    featured: false,
+    width: 720,
+    height: 540,
+  },
+  {
+    id: "win-07",
+    tournament: "",
+    result: "Trophy win",
+    team: "BleedBlue",
+    year: "",
+    featured: false,
+    width: 720,
+    height: 540,
+  },
+  {
+    id: "win-08",
+    tournament: "",
+    result: "Trophy win",
+    team: "",
+    year: "",
+    featured: false,
+    width: 720,
+    height: 562,
+  },
+  {
+    id: "win-09",
+    tournament: "",
+    result: "Trophy win",
+    team: "",
+    year: "",
+    featured: false,
+    width: 720,
+    height: 510,
+  },
+  {
+    id: "win-10",
+    tournament: "T7 Cricket Tournament",
+    result: "Trophy win",
+    team: "",
+    year: "",
+    featured: false,
+    width: 720,
+    height: 457,
+  },
+  {
+    id: "win-11",
+    tournament: "",
+    result: "Trophy win",
+    team: "",
+    year: "",
+    featured: false,
+    width: 720,
+    height: 481,
+  },
+  {
+    id: "win-12",
+    tournament: "",
+    result: "Runners-up",
+    team: "Emeralds",
+    year: "",
+    featured: false,
+    width: 720,
+    height: 391,
+  },
+  {
+    id: "win-13",
+    tournament: "",
+    result: "Trophy win",
+    team: "Kurralu",
+    year: "",
+    featured: false,
+    width: 720,
+    height: 405,
+  },
+  {
+    id: "win-14",
+    tournament: "",
+    result: "Trophy win",
+    team: "Kurralu",
+    year: "",
+    featured: false,
+    width: 720,
+    height: 540,
+  },
+  {
+    id: "win-15",
+    tournament: "PDCC T15",
+    result: "Trophy win",
+    team: "",
+    year: "",
+    featured: false,
+    width: 720,
+    height: 328,
+  },
+  {
+    id: "win-16",
+    tournament: "",
+    result: "Trophy win",
+    team: "",
+    year: "",
+    featured: false,
+    width: 720,
+    height: 423,
+  },
+  {
+    id: "win-17",
+    tournament: "",
+    result: "Trophy win",
+    team: "",
+    year: "",
+    featured: false,
+    width: 720,
+    height: 500,
+  },
+];
+
+export const featuredAchievements = achievements.filter((a) => a.featured).slice(0, 4);
+
+export const photoUrl = (id, size = "full") =>
+  `${import.meta.env.BASE_URL}achievements/${id}${size === "small" ? "-sm" : ""}.webp`;
+
+/** Caption text, e.g. "Hurricanes One-Day Tournament · Runners-up · Kurralu · 2026". */
+export function captionOf(a) {
+  return [a.tournament, a.result, a.team, a.year].filter(Boolean).join(" · ");
+}
