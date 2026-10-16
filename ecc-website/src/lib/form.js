@@ -70,5 +70,9 @@ export async function fetchSheetCounts({ endpoint, sheet }) {
   if (!res.ok) return null;
   const data = await res.json();
   if (!data?.ok || typeof data.count !== "number") return null;
-  return { count: data.count, captains: data.captains ?? 0 };
+  return {
+    count: data.count,
+    captains: data.captains ?? 0,
+    players: Array.isArray(data.players) ? data.players : null,
+  };
 }
