@@ -6,34 +6,68 @@
  * See docs/google-sheets-setup.md for the full steps.
  *
  * Each website form sends { sheet: "<tab name>", fields: { Column: value, ... } }.
- * The tab is created automatically, the first row becomes the column headers,
- * and new columns are added if a form starts sending a new field.
+ * Only the tabs and fields listed in FORMS below are accepted; the tab is
+ * created automatically and the first row becomes the column headers.
  */
 
 /** Bump this when the script changes, to confirm the new version is live. */
-const SCRIPT_VERSION = 4;
+const SCRIPT_VERSION = 5;
+
+/**
+ * The only tabs this script will write to or read from, and the only fields
+ * each one accepts. Anything else sent to the web app is ignored, so nobody
+ * can create new tabs, add columns, or read other tabs in the Sheet.
+ * To add a form later, add an entry here and redeploy.
+ */
+const FORMS = {
+  "Internal Tournament 2026": {
+    fields: {
+      Name: { required: true, max: 80 },
+      Email: { required: true, max: 120, type: "email" },
+      Phone: { required: true, max: 30, type: "phone" },
+      Role: { required: true, max: 40 },
+      "Captain nomination": { required: true, max: 3 },
+      "Available on": { max: 40 },
+      Notes: { max: 500 },
+    },
+    maxRows: 400, // stop accepting once the tab is this full (flood protection)
+    publicNames: true, // allow the website to show "first name + last initial"
+  },
+};
+
+/** At most this many sign-ups per minute across the whole site. */
+const MAX_PER_MINUTE = 20;
 
 function doPost(e) {
   const lock = LockService.getScriptLock();
-  lock.waitLock(15000);
+  if (!lock.tryLock(15000)) return json({ ok: false, error: "busy" });
   try {
-    const data = JSON.parse(e.postData.contents || "{}");
+    const raw = (e && e.postData && e.postData.contents) || "";
+    if (raw.length > 10000) return json({ ok: false, error: "invalid" });
+    const data = JSON.parse(raw || "{}");
 
     // Spam trap: real visitors never fill the hidden "website" field.
     if (data.website) return json({ ok: true });
 
-    const sheetName = String(data.sheet || "Responses").slice(0, 90);
-    const fields = data.fields || {};
+    const sheetName = String(data.sheet || "");
+    const form = Object.prototype.hasOwnProperty.call(FORMS, sheetName) ? FORMS[sheetName] : null;
+    if (!form) return json({ ok: false, error: "invalid" });
+
+    if (tooManyRecently()) return json({ ok: false, error: "busy" });
+
+    const fields = validate(form, data.fields || {});
+    if (!fields) return json({ ok: false, error: "invalid" });
 
     const ss = SpreadsheetApp.getActiveSpreadsheet();
     const sheet = ss.getSheetByName(sheetName) || ss.insertSheet(sheetName);
+    if (sheet.getLastRow() > form.maxRows) return json({ ok: false, error: "full" });
 
-    // Header row: "Submitted at" + every field name, adding any new ones.
-    let headers =
+    // Header row: "Submitted at" + the allowed fields (existing columns kept).
+    const headers =
       sheet.getLastRow() === 0
         ? ["Submitted at"]
         : sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
-    Object.keys(fields).forEach(function (key) {
+    Object.keys(form.fields).forEach(function (key) {
       if (headers.indexOf(key) === -1) headers.push(key);
     });
     sheet.getRange(1, 1, 1, headers.length).setValues([headers]).setFontWeight("bold");
@@ -53,10 +87,38 @@ function doPost(e) {
 
     return json({ ok: true });
   } catch (err) {
-    return json({ ok: false, error: String(err) });
+    // Don't reveal internal details to the outside world.
+    console.error(err);
+    return json({ ok: false, error: "invalid" });
   } finally {
     lock.releaseLock();
   }
+}
+
+/** Keeps only allowed fields, trims and length-checks them. Null if invalid. */
+function validate(form, input) {
+  const out = {};
+  const names = Object.keys(form.fields);
+  for (let i = 0; i < names.length; i++) {
+    const name = names[i];
+    const rule = form.fields[name];
+    const value = String(input[name] == null ? "" : input[name]).trim();
+    if (rule.required && !value) return null;
+    if (value.length > rule.max) return null;
+    if (value && rule.type === "email" && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(value)) return null;
+    if (value && rule.type === "phone" && normalisePhone(value) === "") return null;
+    out[name] = value;
+  }
+  return out;
+}
+
+/** Simple site-wide rate limit using the script cache (resets every minute). */
+function tooManyRecently() {
+  const cache = CacheService.getScriptCache();
+  const key = "rate-" + Math.floor(Date.now() / 60000);
+  const count = Number(cache.get(key) || 0) + 1;
+  cache.put(key, String(count), 120);
+  return count > MAX_PER_MINUTE;
 }
 
 /**
@@ -71,6 +133,8 @@ function doGet(e) {
   if (!sheetName) {
     return json({ ok: true, version: SCRIPT_VERSION, message: "ECC form endpoint is running." });
   }
+  const form = Object.prototype.hasOwnProperty.call(FORMS, sheetName) ? FORMS[sheetName] : null;
+  if (!form) return json({ ok: false, error: "invalid" });
   const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(String(sheetName));
   if (!sheet || sheet.getLastRow() < 2) {
     return json({ ok: true, count: 0, captains: 0, players: [] });
@@ -90,7 +154,7 @@ function doGet(e) {
           return String(row[captainCol]).trim().toLowerCase() === "yes";
         }).length;
   const players = rows.map(function (row) {
-    return { name: publicName(row[nameCol]) };
+    return { name: form.publicNames ? publicName(row[nameCol]) : "" };
   });
   return json({ ok: true, count: rows.length, captains: captains, players: players });
 }

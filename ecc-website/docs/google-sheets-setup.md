@@ -85,3 +85,17 @@ The script ignores a sign-up if the same phone number (last 10 digits) or the
 same email is already in the tab, so each player is counted once. The website
 also remembers a sign-up on that device and shows "You're already signed up"
 instead of the form.
+
+## Security limits (script version 5)
+
+The script only accepts the tabs and fields listed in `FORMS` at the top of
+the file. It rejects anything else, so nobody can create tabs, add columns or
+read other tabs in your Sheet. It also:
+
+- checks required fields, email format and phone length
+- limits sign-ups to 20 per minute across the whole site
+- stops accepting new rows once a tab has 400 sign-ups
+- shows only first name + last initial on the website
+
+To add a new form, add an entry to `FORMS`, save, and publish a new version
+(Deploy → Manage deployments → Edit → New version).
