@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { useState } from "react";
 import { Container, Section, SectionHeading } from "../components/ui";
 import {
@@ -598,6 +599,12 @@ export default function InternalTournamentPage() {
                   Each extension only happens if someone bids in the {t.lateBidWindow}. Longest
                   possible bidding on one player: 3 min.
                 </p>
+                <Link
+                  to="/captain-draw"
+                  className="mt-4 inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-gold-300 hover:text-gold-200"
+                >
+                  Organisers: open the captain draw board →
+                </Link>
               </div>
             </div>
 

@@ -11,6 +11,7 @@ import LeadershipPage from "./pages/LeadershipPage";
 import { showLeadership } from "./data/club";
 import InternalTournamentPage from "./pages/InternalTournamentPage";
 import AchievementsPage from "./pages/AchievementsPage";
+import CaptainDrawPage from "./pages/CaptainDrawPage";
 import { internalTournament } from "./data/internalTournament";
 import SocialPage from "./pages/SocialPage";
 import SponsorPage from "./pages/SponsorPage";
@@ -27,6 +28,9 @@ export default function App() {
         <Route path="tournaments" element={<TournamentsPage />} />
         {internalTournament.show && (
           <Route path="internal-tournament" element={<InternalTournamentPage />} />
+        )}
+        {internalTournament.show && (
+          <Route path="captain-draw" element={<CaptainDrawPage />} />
         )}
         <Route path="achievements" element={<AchievementsPage />} />
         <Route path="teams" element={<TeamsPage />} />
