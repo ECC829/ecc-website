@@ -20,6 +20,11 @@ export const internalTournament = {
   lateBidWindow: "last 10 seconds",
   extension: "30 sec",
   maxExtensions: 3,
+  // Numbers used by the live auction board (/#/auction)
+  auctionSeconds: 90,
+  lateBidSeconds: 10,
+  extensionSeconds: 30,
+  minBid: 1,
 };
 
 const t = internalTournament;
