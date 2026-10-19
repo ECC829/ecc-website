@@ -325,6 +325,7 @@ function SignupForm({ onSignedUp, onSaved }) {
             autoComplete="name"
             value={values.name}
             error={errors.name}
+            maxLength={80}
             onChange={(e) => setField("name", e.target.value)}
             placeholder="Your full name"
           />
@@ -337,6 +338,7 @@ function SignupForm({ onSignedUp, onSaved }) {
               autoComplete="email"
               value={values.email}
               error={errors.email}
+              maxLength={120}
               onChange={(e) => setField("email", e.target.value)}
               placeholder="you@example.com"
             />
@@ -347,6 +349,7 @@ function SignupForm({ onSignedUp, onSaved }) {
               autoComplete="tel"
               value={values.phone}
               error={errors.phone}
+              maxLength={30}
               onChange={(e) => setField("phone", e.target.value)}
               placeholder="Best number"
             />
@@ -409,6 +412,7 @@ function SignupForm({ onSignedUp, onSaved }) {
           <TextArea
             rows={3}
             value={values.notes}
+            maxLength={500}
             onChange={(e) => setField("notes", e.target.value)}
             placeholder="Timing constraints, questions for the organisers…"
           />
