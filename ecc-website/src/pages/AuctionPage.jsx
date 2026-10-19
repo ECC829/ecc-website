@@ -78,6 +78,7 @@ export default function AuctionPage() {
   const [started, setStarted] = useState(saved?.started ?? false);
   const [teams, setTeams] = useState(saved?.teams ?? []); // [{ name, squad: [{player, price}] }]
   const [pool, setPool] = useState(saved?.pool ?? []);
+  // Players who went unsold at least once. They go back into the pool, marked.
   const [unsold, setUnsold] = useState(saved?.unsold ?? []);
   const [lot, setLot] = useState(saved?.lot ?? null);
   const [history, setHistory] = useState(saved?.history ?? []); // undo stack (snapshots)
@@ -134,7 +135,8 @@ export default function AuctionPage() {
   const nextAmount = called !== "" && calledNum > 0 ? calledNum : minNext;
   const tooLow = called !== "" && calledNum > 0 && calledNum < minNext;
   const allFull = teams.length > 0 && teams.every((tm) => slotsLeft(tm) <= 0);
-  const finished = started && !lot && (allFull || (pool.length === 0 && unsold.length === 0));
+  const finished = started && !lot && (allFull || pool.length === 0);
+  const freshPool = pool.filter((p) => !unsold.includes(p));
 
   /* ---------------------------- clock ----------------------------- */
   const endsAt = lot?.status === "running" ? lot.endsAt : null;
@@ -177,8 +179,10 @@ export default function AuctionPage() {
       });
       setBurst((n) => n + 1);
     } else {
-      setUnsold((u) => [...u, lot.player]);
-      setBanner({ kind: "unsold", text: `${lot.player} — unsold` });
+      // Unsold players go back into the pool for another round.
+      setPool((p) => [...p, lot.player]);
+      setUnsold((u) => (u.includes(lot.player) ? u : [...u, lot.player]));
+      setBanner({ kind: "unsold", text: `${lot.player} — unsold, back in the pool` });
     }
     setLot(null);
   }, [lot, leading, snapshot, teams]);
@@ -195,12 +199,13 @@ export default function AuctionPage() {
   };
 
   const nextPlayer = () => {
-    const source = pool.length ? pool : unsold;
+    // Players not yet auctioned come first; unsold players get another go
+    // once everyone else has been up.
+    const source = freshPool.length ? freshPool : pool;
     if (!source.length) return;
     const player = source[randomIndex(source.length)];
     setBanner(null);
-    if (pool.length) setPool((p) => p.filter((x) => x !== player));
-    else setUnsold((u) => u.filter((x) => x !== player));
+    setPool((p) => p.filter((x) => x !== player));
     setLot(blankLot(player));
     setCalled("");
   };
@@ -209,7 +214,6 @@ export default function AuctionPage() {
     if (lot) return;
     setBanner(null);
     setPool((p) => p.filter((x) => x !== player));
-    setUnsold((u) => u.filter((x) => x !== player));
     setLot(blankLot(player));
   };
 
@@ -532,15 +536,16 @@ export default function AuctionPage() {
                 <>
                   <CricketBall size={70} />
                   <p className="mt-4 font-mono text-xs uppercase tracking-[0.35em] text-[#f6edd3]/60">
-                    {pool.length} in the pool{unsold.length ? ` · ${unsold.length} unsold` : ""}
+                    {pool.length} in the pool
+                    {pool.length - freshPool.length > 0 ? ` · ${pool.length - freshPool.length} back after going unsold` : ""}
                   </p>
                   <button
                     type="button"
                     onClick={nextPlayer}
-                    disabled={!pool.length && !unsold.length}
+                    disabled={!pool.length}
                     className="mt-5 rounded-full bg-[#e8b234] px-10 py-4 font-display text-lg font-bold uppercase tracking-widest text-[#14100a] shadow-[0_8px_30px_rgba(232,178,52,0.35)] transition hover:bg-[#f3c654] disabled:opacity-40"
                   >
-                    {pool.length ? "Bring out the next player" : "Re-auction an unsold player"}
+                    {freshPool.length ? "Bring out the next player" : "Bring back an unsold player"}
                   </button>
                 </>
               )}
@@ -587,7 +592,7 @@ export default function AuctionPage() {
                 <div className="mt-4 flex flex-wrap justify-center gap-2">
                   {lot.status === "ended" ? (
                     <button type="button" onClick={finishLot} className="rounded-full bg-[#e8b234] px-6 py-2.5 font-display text-base font-bold uppercase tracking-widest text-[#14100a]">
-                      {leading ? `Sold to ${teams[leading.captain]?.name}` : "Mark unsold"}
+                      {leading ? `Sold to ${teams[leading.captain]?.name}` : "Unsold — back to pool"}
                     </button>
                   ) : (
                     <>
@@ -596,7 +601,7 @@ export default function AuctionPage() {
                       ) : (
                         <button type="button" onClick={startClock} className={pill}>Start clock</button>
                       )}
-                      <button type="button" onClick={finishLot} className={pill}>{leading ? "Sold now" : "Unsold"}</button>
+                      <button type="button" onClick={finishLot} className={pill}>{leading ? "Sold now" : "Unsold — back to pool"}</button>
                       <button type="button" onClick={undoBid} disabled={!lot.bids.length} className={pill}>Undo bid</button>
                       <button type="button" onClick={passPlayer} disabled={lot.bids.length > 0} className={pill}>Back to pool</button>
                     </>
@@ -739,57 +744,53 @@ export default function AuctionPage() {
           })}
         </div>
 
-        {/* Pool & unsold */}
-        {!lot && (pool.length > 0 || unsold.length > 0) && (
-          <div className="mt-6 grid gap-4 lg:grid-cols-2">
-            <div className="rounded-2xl border border-[#f6edd3]/10 bg-black/30 p-4">
-              <p className="font-display text-lg font-bold uppercase tracking-[0.2em] text-[#f6edd3]">
-                In the pool <span className="font-mono text-sm font-normal text-[#f6edd3]/60">{pool.length}</span>
-              </p>
-              <p className="mt-1 text-xs text-[#f6edd3]/50">Tap a name to auction that player next instead of a random pick.</p>
-              <ul className="mt-3 flex max-h-48 flex-wrap gap-2 overflow-y-auto">
-                {pool.map((p) => (
-                  <li key={p}>
-                    <button type="button" onClick={() => pickPlayer(p)} className="inline-flex items-center gap-2 rounded-full border border-[#f6edd3]/15 px-3 py-1 text-sm text-[#f6edd3]/85 hover:border-[#e8b234]">
-                      <span className="h-2 w-2 rounded-full bg-[#c8102e]" aria-hidden="true" />
+        {/* Pool */}
+        {!lot && pool.length > 0 && (
+          <div className="mt-6 rounded-2xl border border-[#f6edd3]/10 bg-black/30 p-4">
+            <p className="font-display text-lg font-bold uppercase tracking-[0.2em] text-[#f6edd3]">
+              In the pool <span className="font-mono text-sm font-normal text-[#f6edd3]/60">{pool.length}</span>
+            </p>
+            <p className="mt-1 text-xs text-[#f6edd3]/50">
+              Tap a name to auction that player next instead of a random pick. Unsold players
+              come back here; you can also give one to a team with space at the base price ({t.minBid}).
+            </p>
+            <ul className="mt-3 flex max-h-60 flex-wrap gap-2 overflow-y-auto">
+              {pool.map((p) => {
+                const wasUnsold = unsold.includes(p);
+                return (
+                  <li key={p} className="inline-flex items-center gap-1">
+                    <button
+                      type="button"
+                      onClick={() => pickPlayer(p)}
+                      className={`inline-flex items-center gap-2 rounded-full border px-3 py-1 text-sm hover:border-[#e8b234] ${
+                        wasUnsold ? "border-[#e8b234]/40 bg-[#e8b234]/10 text-[#f6edd3]" : "border-[#f6edd3]/15 text-[#f6edd3]/85"
+                      }`}
+                    >
+                      <span className={`h-2 w-2 rounded-full ${wasUnsold ? "bg-[#e8b234]" : "bg-[#c8102e]"}`} aria-hidden="true" />
                       {p}
+                      {wasUnsold && (
+                        <span className="font-mono text-[9px] uppercase tracking-widest text-[#e8b234]">unsold</span>
+                      )}
                     </button>
-                  </li>
-                ))}
-              </ul>
-            </div>
-            {unsold.length > 0 && (
-              <div className="rounded-2xl border border-[#f6edd3]/10 bg-black/30 p-4">
-                <p className="font-display text-lg font-bold uppercase tracking-[0.2em] text-[#f6edd3]">
-                  Unsold <span className="font-mono text-sm font-normal text-[#f6edd3]/60">{unsold.length}</span>
-                </p>
-                <p className="mt-1 text-xs text-[#f6edd3]/50">
-                  Re-auction them, or give one to a team with space at the base price ({t.minBid}).
-                </p>
-                <ul className="mt-3 space-y-2">
-                  {unsold.map((p) => (
-                    <li key={p} className="flex flex-wrap items-center gap-2">
-                      <button type="button" onClick={() => pickPlayer(p)} className="rounded-full border border-[#f6edd3]/20 px-3 py-1 text-sm text-[#f6edd3] hover:border-[#e8b234]">
-                        {p}
-                      </button>
+                    {wasUnsold && (
                       <select
-                        aria-label={`Assign ${p} to a team`}
+                        aria-label={`Give ${p} to a team at the base price`}
                         value=""
                         onChange={(e) => e.target.value !== "" && assignAtBase(p, Number(e.target.value))}
-                        className="rounded-full border border-[#f6edd3]/20 bg-black/40 px-3 py-1 text-xs text-[#f6edd3]"
+                        className="rounded-full border border-[#f6edd3]/20 bg-black/40 px-2 py-1 text-xs text-[#f6edd3]"
                       >
-                        <option value="">Assign at {t.minBid} to…</option>
+                        <option value="">Give at {t.minBid} to…</option>
                         {teams.map((tm, i) =>
                           slotsLeft(tm) > 0 && maxBid(tm) >= t.minBid ? (
                             <option key={tm.name} value={i}>{tm.name}</option>
                           ) : null
                         )}
                       </select>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
+                    )}
+                  </li>
+                );
+              })}
+            </ul>
           </div>
         )}
       </Container>
