@@ -605,6 +605,12 @@ export default function InternalTournamentPage() {
                 >
                   Organisers: open the captain draw board →
                 </Link>
+                <Link
+                  to="/auction"
+                  className="mt-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-gold-300 hover:text-gold-200"
+                >
+                  Organisers: open the player auction board →
+                </Link>
               </div>
             </div>
 

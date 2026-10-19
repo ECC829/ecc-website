@@ -405,6 +405,16 @@ export default function CaptainDrawPage() {
               Copy results
             </button>
           )}
+          {done && (
+            <div className="mt-4">
+              <Link
+                to="/auction"
+                className="inline-flex rounded-full bg-[#e8b234] px-8 py-3 font-display text-lg font-bold uppercase tracking-widest text-[#14100a] shadow-[0_8px_30px_rgba(232,178,52,0.35)] transition hover:bg-[#f3c654]"
+              >
+                Start the player auction →
+              </Link>
+            </div>
+          )}
         </div>
 
         <div className="mt-8 grid gap-6 lg:grid-cols-[1.55fr_1fr]">
