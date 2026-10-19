@@ -102,3 +102,12 @@
     scroll-behavior: auto !important;
   }
 }
+
+/* Captain draw confetti */
+@keyframes ecc-confetti {
+  0% { transform: translate3d(0, -20px, 0) rotate(0deg); opacity: 1; }
+  100% { transform: translate3d(var(--drift), 110vh, 0) rotate(var(--rot)); opacity: 0.9; }
+}
+@media (prefers-reduced-motion: reduce) {
+  [style*="ecc-confetti"] { animation: none !important; display: none !important; }
+}
