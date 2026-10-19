@@ -81,7 +81,7 @@ export default function AuctionPage() {
   const [unsold, setUnsold] = useState(saved?.unsold ?? []);
   const [lot, setLot] = useState(saved?.lot ?? null);
   const [history, setHistory] = useState(saved?.history ?? []); // undo stack (snapshots)
-  const [increment, setIncrement] = useState(1);
+  const [called, setCalled] = useState(""); // amount a captain has called out
   const [banner, setBanner] = useState(null); // { kind: "sold"|"unsold", text }
   const [burst, setBurst] = useState(0);
   const [now, setNow] = useState(() => Date.now());
@@ -129,7 +129,10 @@ export default function AuctionPage() {
   const maxBid = (team) =>
     slotsLeft(team) <= 0 ? 0 : pointsLeft(team) - t.minBid * (slotsLeft(team) - 1);
 
-  const nextAmount = leading ? leading.amount + increment : t.minBid;
+  const minNext = leading ? leading.amount + 1 : t.minBid;
+  const calledNum = Math.floor(Number(called));
+  const nextAmount = called !== "" && calledNum > 0 ? calledNum : minNext;
+  const tooLow = called !== "" && calledNum > 0 && calledNum < minNext;
   const allFull = teams.length > 0 && teams.every((tm) => slotsLeft(tm) <= 0);
   const finished = started && !lot && (allFull || (pool.length === 0 && unsold.length === 0));
 
@@ -199,6 +202,7 @@ export default function AuctionPage() {
     if (pool.length) setPool((p) => p.filter((x) => x !== player));
     else setUnsold((u) => u.filter((x) => x !== player));
     setLot(blankLot(player));
+    setCalled("");
   };
 
   const pickPlayer = (player) => {
@@ -235,6 +239,7 @@ export default function AuctionPage() {
       }
       return { ...l, status, endsAt, remainingMs: rem, extensions, bids: [...l.bids, { captain: captainIndex, amount }] };
     });
+    setCalled("");
   };
 
   const undoBid = () =>
@@ -285,7 +290,7 @@ export default function AuctionPage() {
       teams
         .map(
           (tm, i) =>
-            `Team ${i + 1} — Captain ${tm.name} (${pointsLeft(tm)} pts left)\n` +
+            `Team ${i + 1} — Captain ${tm.name} (purse left ${pointsLeft(tm)})\n` +
             tm.squad.map((s) => `  • ${s.player} — ${s.price}`).join("\n")
         )
         .join("\n\n");
@@ -602,22 +607,59 @@ export default function AuctionPage() {
           )}
         </div>
 
-        {/* Bid controls */}
+        {/* Called bid */}
         {lot && lot.status !== "ended" && (
-          <div className="mt-5 flex flex-wrap items-center justify-center gap-2">
-            <span className="font-mono text-[11px] uppercase tracking-widest text-[#f6edd3]/60">Raise by</span>
-            {[1, 2, 5].map((n) => (
+          <div className="mt-5 flex flex-wrap items-center justify-center gap-3 rounded-2xl border border-[#f6edd3]/10 bg-black/35 px-4 py-3">
+            <label htmlFor="called-bid" className="font-mono text-[11px] uppercase tracking-widest text-[#f6edd3]/70">
+              Amount called
+            </label>
+            <div className="flex items-center gap-1">
               <button
-                key={n}
                 type="button"
-                onClick={() => setIncrement(n)}
-                className={`h-9 w-12 rounded-full border text-sm font-bold ${increment === n ? "border-[#e8b234] bg-[#e8b234] text-[#14100a]" : "border-[#f6edd3]/25 text-[#f6edd3]"}`}
+                aria-label="Lower the called amount"
+                onClick={() => setCalled(String(Math.max(minNext, nextAmount - 1)))}
+                className="h-11 w-11 rounded-full border border-[#f6edd3]/25 text-xl text-[#f6edd3] hover:border-[#e8b234]"
               >
-                +{n}
+                −
               </button>
-            ))}
-            <span className="ml-2 text-sm text-[#f6edd3]/70">
-              Tap a captain to bid <span className="font-semibold text-[#e8b234]">{nextAmount}</span>
+              <input
+                id="called-bid"
+                type="number"
+                inputMode="numeric"
+                min={minNext}
+                value={called}
+                placeholder={String(minNext)}
+                onChange={(e) => setCalled(e.target.value)}
+                className={`h-14 w-28 rounded-xl border-2 bg-[#0e0e0e] text-center font-display text-4xl font-bold text-[#e8b234] placeholder:text-[#e8b234]/40 focus:outline-none ${tooLow ? "border-[#c8102e]" : "border-[#e8b234]/60 focus:border-[#e8b234]"}`}
+              />
+              <button
+                type="button"
+                aria-label="Raise the called amount"
+                onClick={() => setCalled(String(nextAmount + 1))}
+                className="h-11 w-11 rounded-full border border-[#f6edd3]/25 text-xl text-[#f6edd3] hover:border-[#e8b234]"
+              >
+                +
+              </button>
+            </div>
+            <div className="flex gap-1">
+              {[1, 2, 5, 10].map((n) => (
+                <button
+                  key={n}
+                  type="button"
+                  onClick={() => setCalled(String((leading ? leading.amount : 0) + n))}
+                  className="h-9 rounded-full border border-[#f6edd3]/25 px-3 text-sm font-bold text-[#f6edd3] hover:border-[#e8b234] hover:text-[#e8b234]"
+                  title={leading ? `Current bid + ${n}` : `Opening bid of ${n}`}
+                >
+                  {leading ? `+${n}` : n}
+                </button>
+              ))}
+            </div>
+            <span className="text-sm text-[#f6edd3]/70">
+              {tooLow ? (
+                <span className="text-[#ff5a6e]">Must be at least {minNext}</span>
+              ) : (
+                <>then tap the captain who called <span className="font-semibold text-[#e8b234]">{nextAmount}</span></>
+              )}
             </span>
           </div>
         )}
@@ -627,7 +669,9 @@ export default function AuctionPage() {
           {teams.map((tm, i) => {
             const max = maxBid(tm);
             const isLeading = leading?.captain === i;
-            const canBid = lot && lot.status !== "ended" && !isLeading && slotsLeft(tm) > 0 && nextAmount <= max;
+            const canBid = lot && lot.status !== "ended" && !isLeading && !tooLow && slotsLeft(tm) > 0 && nextAmount <= max;
+            const purse = pointsLeft(tm);
+            const afterWin = isLeading ? purse - leading.amount : null;
             return (
               <div
                 key={tm.name}
@@ -641,10 +685,23 @@ export default function AuctionPage() {
                     <p className="truncate font-display text-xl font-bold uppercase tracking-wide text-[#f6edd3]">{tm.name}</p>
                   </div>
                   <div className="text-right">
-                    <p className="font-display text-3xl font-bold leading-none text-[#e8b234]">{pointsLeft(tm)}</p>
-                    <p className="font-mono text-[9px] uppercase tracking-widest text-[#f6edd3]/45">pts left</p>
+                    <p className="font-mono text-[9px] uppercase tracking-widest text-[#f6edd3]/55">Purse left</p>
+                    <p className="font-display text-5xl font-bold leading-none text-[#e8b234]">{purse}</p>
                   </div>
                 </div>
+
+                <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-white/10" aria-hidden="true">
+                  <div className="h-full rounded-full bg-[#e8b234]" style={{ width: `${Math.max(0, (purse / budget) * 100)}%` }} />
+                </div>
+                <p className="mt-1.5 flex justify-between font-mono text-[10px] uppercase tracking-widest text-[#f6edd3]/55">
+                  <span>{slotsLeft(tm) <= 0 ? "Squad full" : `${slotsLeft(tm)} to buy`}</span>
+                  <span>{slotsLeft(tm) > 0 ? `Max bid ${max}` : `Spent ${budget - purse}`}</span>
+                </p>
+                {afterWin !== null && (
+                  <p className="mt-2 rounded-md bg-[#e8b234]/15 px-2 py-1 text-center text-xs font-semibold text-[#e8b234]">
+                    Bidding {leading.amount} → purse {afterWin} if sold
+                  </p>
+                )}
 
                 <ul className="mt-3 flex flex-wrap gap-1">
                   {Array.from({ length: squadSize }, (_, s) => {
@@ -669,11 +726,11 @@ export default function AuctionPage() {
                       onClick={() => placeBid(i, nextAmount)}
                       className="w-full rounded-lg bg-[#e8b234] py-2 font-display text-base font-bold uppercase tracking-widest text-[#14100a] transition hover:bg-[#f3c654] disabled:bg-white/10 disabled:text-[#f6edd3]/35"
                     >
-                      {isLeading ? "Leading" : slotsLeft(tm) <= 0 ? "Squad full" : nextAmount > max ? `Max ${max}` : `Bid ${nextAmount}`}
+                      {isLeading ? `Leading · ${leading.amount}` : slotsLeft(tm) <= 0 ? "Squad full" : nextAmount > max ? `Can't — max ${max}` : `${tm.name.split(" ")[0]} calls ${nextAmount}`}
                     </button>
                   ) : (
                     <p className="text-center font-mono text-[10px] uppercase tracking-widest text-[#f6edd3]/45">
-                      {slotsLeft(tm) <= 0 ? "Squad complete" : `${slotsLeft(tm)} to buy · max bid ${max}`}
+                      {slotsLeft(tm) <= 0 ? "Squad complete" : "Waiting for next player"}
                     </p>
                   )}
                 </div>
