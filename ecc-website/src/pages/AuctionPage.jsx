@@ -66,8 +66,11 @@ export default function AuctionPage() {
   const [drawSaved] = useState(() => readJSON(DRAW_KEY));
 
   // Setup
-  const [captainsText, setCaptainsText] = useState(
-    saved?.captainsText ?? (drawSaved?.picked ?? []).join("\n")
+  // Before the auction starts, always take the latest captains from the draw
+  // (an older saved, possibly empty, list must not hide them).
+  const drawPicked = drawSaved?.picked ?? [];
+  const [captainsText, setCaptainsText] = useState(() =>
+    !saved?.started && drawPicked.length ? drawPicked.join("\n") : saved?.captainsText ?? drawPicked.join("\n")
   );
   const [playersText, setPlayersText] = useState(saved?.playersText ?? "");
   const [budget, setBudget] = useState(saved?.budget ?? t.captainPoints);
@@ -86,6 +89,7 @@ export default function AuctionPage() {
   const [burst, setBurst] = useState(0);
   const [now, setNow] = useState(() => Date.now());
 
+  const [drawNote, setDrawNote] = useState("");
   const captainNames = useMemo(() => parseNames(captainsText), [captainsText]);
   // Pool names that look like a captain under a different spelling, e.g.
   // captain "VAMSI" vs sign-up "Vamsi D." (same first name).
@@ -94,7 +98,7 @@ export default function AuctionPage() {
     const exact = new Set(captainNames.map((c) => c.toLowerCase()));
     return parseNames(playersText).filter((p) => {
       const first = p.split(" ")[0].replace(/\./g, "").toLowerCase();
-      return !exact.has(p.toLowerCase()) && firsts.has(first);
+      return exact.has(p.toLowerCase()) || firsts.has(first);
     });
   }, [captainNames, playersText]);
   const playerNames = useMemo(() => {
@@ -365,9 +369,10 @@ export default function AuctionPage() {
                 count: captainNames.length,
                 value: captainsText,
                 set: setCaptainsText,
-                hint: drawSaved?.picked?.length
+                hint: drawPicked.length
                   ? "Filled in from the captain draw."
                   : "Run the captain draw first, or type one captain per line.",
+                fromDraw: true,
                 placeholder: "Vamsi\nBala\nAjith…",
               },
               {
@@ -402,6 +407,30 @@ export default function AuctionPage() {
                   className="mt-4 block w-full resize-y rounded-lg border border-[#1b1a14]/15 bg-[#fbf6e6] px-4 py-3 font-mono text-base uppercase leading-8 tracking-wide placeholder:normal-case placeholder:text-[#1b1a14]/35 focus:border-[#c8102e] focus:outline-none focus:ring-2 focus:ring-[#c8102e]/20"
                 />
                 <p className="mt-3 text-xs leading-5 text-[#1b1a14]/60">{box.hint}</p>
+                {box.fromDraw && (
+                  <div className="mt-4 rounded-lg border border-[#1b1a14]/15 bg-[#1b1a14]/[0.04] p-3">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const picked = readJSON(DRAW_KEY)?.picked ?? [];
+                        if (!picked.length) {
+                          setDrawNote("No captains drawn yet — run the captain draw first.");
+                          return;
+                        }
+                        setCaptainsText(picked.join("\n"));
+                        const caps = new Set(picked.map((c) => c.toLowerCase()));
+                        setPlayersText((text) =>
+                          parseNames(text).filter((n) => !caps.has(n.toLowerCase())).join("\n")
+                        );
+                        setDrawNote(`Loaded ${picked.length} captains from the draw.`);
+                      }}
+                      className="rounded-full bg-[#0c2a19] px-4 py-2 text-xs font-semibold uppercase tracking-widest text-[#f6edd3] transition hover:bg-[#123a24]"
+                    >
+                      Load captains from the draw
+                    </button>
+                    {drawNote && <p className="mt-2 text-xs text-[#1b1a14]/70" role="status">{drawNote}</p>}
+                  </div>
+                )}
                 {box.organiser && (
                   <OrganiserLoad
                     label="Load players from sign-ups"
@@ -417,8 +446,8 @@ export default function AuctionPage() {
                 {box.title === "Player pool" && lookalikes.length > 0 && (
                   <div className="mt-3 rounded-lg border border-[#c8102e]/30 bg-[#c8102e]/[0.06] p-3 text-xs leading-5 text-[#1b1a14]">
                     <p>
-                      These look like captains: <strong>{lookalikes.join(", ")}</strong>. Captains
-                      shouldn't be auctioned.
+                      These are captains (or look like them): <strong>{lookalikes.join(", ")}</strong>.
+                      Captains shouldn't be auctioned.
                     </p>
                     <button
                       type="button"
