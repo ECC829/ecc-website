@@ -11,7 +11,7 @@
  */
 
 /** Bump this when the script changes, to confirm the new version is live. */
-const SCRIPT_VERSION = 5;
+const SCRIPT_VERSION = 6;
 
 /**
  * The only tabs this script will write to or read from, and the only fields
@@ -153,10 +153,41 @@ function doGet(e) {
       : rows.filter(function (row) {
           return String(row[captainCol]).trim().toLowerCase() === "yes";
         }).length;
+  // Organisers (with the secret key) get full names and captain choices for
+  // the captain draw and auction boards. Everyone else gets short names only.
+  if (isOrganiser(e.parameter.key)) {
+    const roster = rows.map(function (row) {
+      return {
+        name: String(row[nameCol]).replace(/\s+/g, " ").trim(),
+        captain: captainCol !== -1 && String(row[captainCol]).trim().toLowerCase() === "yes",
+      };
+    });
+    return json({ ok: true, organiser: true, count: rows.length, captains: captains, roster: roster });
+  }
+  if (e.parameter.key) {
+    Utilities.sleep(1500); // slow down key guessing
+    return json({ ok: false, error: "wrong-key" });
+  }
+
   const players = rows.map(function (row) {
     return { name: form.publicNames ? publicName(row[nameCol]) : "" };
   });
   return json({ ok: true, count: rows.length, captains: captains, players: players });
+}
+
+/**
+ * The organiser key lives in Project Settings → Script Properties as
+ * ORGANISER_KEY, never in this file (which is public on GitHub).
+ */
+function isOrganiser(key) {
+  if (!key) return false;
+  const secret = PropertiesService.getScriptProperties().getProperty("ORGANISER_KEY");
+  if (!secret || secret.length < 12) return false;
+  const a = String(key);
+  if (a.length !== secret.length) return false;
+  let diff = 0;
+  for (let i = 0; i < a.length; i++) diff |= a.charCodeAt(i) ^ secret.charCodeAt(i);
+  return diff === 0;
 }
 
 /** "Ravi Kumar Reddy" -> "Ravi R." — first name plus last initial only. */

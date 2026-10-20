@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { Container } from "../components/ui";
 import { Confetti, CricketBall, SplitFlap } from "../components/DrawEffects";
 import { internalTournament as t } from "../data/internalTournament";
-import { useSignupCounts } from "../lib/useSignupCounts";
+import OrganiserLoad from "../components/OrganiserLoad";
 
 const SHEET = `${t.shortName} ${t.year}`;
 const STORAGE_KEY = `ecc-auction:${SHEET}`;
@@ -64,7 +64,6 @@ const blankLot = (player) => ({
 export default function AuctionPage() {
   const [saved] = useState(() => readJSON(STORAGE_KEY));
   const [drawSaved] = useState(() => readJSON(DRAW_KEY));
-  const { counts } = useSignupCounts(SHEET);
 
   // Setup
   const [captainsText, setCaptainsText] = useState(
@@ -311,10 +310,6 @@ export default function AuctionPage() {
     else document.documentElement.requestFullscreen?.();
   };
 
-  const loadFromSignups = () => {
-    const names = (counts?.players ?? []).map((p) => p.name).filter(Boolean);
-    if (names.length) setPlayersText(names.join("\n"));
-  };
 
   /* ------------------------------------------------------------------ */
   /* Shared backdrop                                                      */
@@ -358,8 +353,9 @@ export default function AuctionPage() {
             </div>
           </div>
           <p className="mt-5 max-w-2xl text-base leading-7 text-[#f6edd3]/70">
-            Captains come straight from the captain draw. Add the player pool, check the
-            points and squad size, then put the board on the big screen.
+            Captains come straight from the captain draw, and the player pool loads from
+            the sign-up sheet with the captains left out. Check the points and squad size,
+            then put the board on the big screen.
           </p>
 
           <div className="mt-10 grid gap-6 lg:grid-cols-2">
@@ -380,13 +376,8 @@ export default function AuctionPage() {
                 value: playersText,
                 set: setPlayersText,
                 hint: "Everyone except the captains (captains are removed automatically).",
+                organiser: true,
                 placeholder: "Ravi K.\nSai P.\nArjun M.…",
-                action:
-                  counts?.players?.length > 0 ? (
-                    <button type="button" onClick={loadFromSignups} className={pill}>
-                      Load {counts.players.length} sign-ups
-                    </button>
-                  ) : null,
               },
             ].map((box) => (
               <div
@@ -411,6 +402,18 @@ export default function AuctionPage() {
                   className="mt-4 block w-full resize-y rounded-lg border border-[#1b1a14]/15 bg-[#fbf6e6] px-4 py-3 font-mono text-base uppercase leading-8 tracking-wide placeholder:normal-case placeholder:text-[#1b1a14]/35 focus:border-[#c8102e] focus:outline-none focus:ring-2 focus:ring-[#c8102e]/20"
                 />
                 <p className="mt-3 text-xs leading-5 text-[#1b1a14]/60">{box.hint}</p>
+                {box.organiser && (
+                  <OrganiserLoad
+                    label="Load players from sign-ups"
+                    onLoaded={(roster) => {
+                      const caps = new Set(captainNames.map((c) => c.toLowerCase()));
+                      const names = roster.map((r) => r.name).filter((n) => !caps.has(n.toLowerCase()));
+                      setPlayersText(names.join("\n"));
+                      const removed = roster.length - names.length;
+                      return `Loaded ${names.length} players${removed ? ` (${removed} captain${removed === 1 ? "" : "s"} left out)` : ""}.`;
+                    }}
+                  />
+                )}
                 {box.title === "Player pool" && lookalikes.length > 0 && (
                   <div className="mt-3 rounded-lg border border-[#c8102e]/30 bg-[#c8102e]/[0.06] p-3 text-xs leading-5 text-[#1b1a14]">
                     <p>

@@ -4,6 +4,7 @@ import { Container } from "../components/ui";
 import { internalTournament as t } from "../data/internalTournament";
 import { useSignupCounts } from "../lib/useSignupCounts";
 import { Confetti, CricketBall, SplitFlap } from "../components/DrawEffects";
+import OrganiserLoad from "../components/OrganiserLoad";
 
 const STORAGE_KEY = `ecc-captain-draw:${t.shortName} ${t.year}`;
 
@@ -154,9 +155,8 @@ export default function CaptainDrawPage() {
             </div>
           </div>
           <p className="mt-5 max-w-2xl text-base leading-7 text-[#f6edd3]/70">
-            Write the captain nominees on the team sheet — copy them from the Google Sheet
-            (filter “Captain nomination” to Yes). Then put the board on the big screen and
-            draw the captains live.
+            Load the captain nominees straight from the sign-up sheet (or type them in),
+            then put the board on the big screen and draw the captains live.
           </p>
 
           <div className="mt-10 grid gap-6 lg:grid-cols-[1.35fr_1fr]">
@@ -189,6 +189,16 @@ export default function CaptainDrawPage() {
                 One name per line. Duplicates are removed automatically, and nothing here is
                 sent anywhere — it stays in this browser.
               </p>
+              <OrganiserLoad
+                label="Load captain nominees from sign-ups"
+                onLoaded={(roster) => {
+                  const names = roster.filter((r) => r.captain).map((r) => r.name);
+                  setNamesText(names.join("\n"));
+                  return names.length
+                    ? `Loaded ${names.length} captain nominees from ${roster.length} sign-ups.`
+                    : "No one has nominated themselves as captain yet.";
+                }}
+              />
             </div>
 
             <div className="flex flex-col gap-5">

@@ -84,3 +84,23 @@ export async function fetchSheetCounts({ endpoint, sheet }) {
     players: Array.isArray(data.players) ? data.players : null,
   };
 }
+
+/**
+ * Organiser-only: full names and captain choices for the draw and auction
+ * boards. Needs the organiser key (kept in the Apps Script's Script
+ * Properties). Returns [{ name, captain }] or throws "wrong-key".
+ */
+export async function fetchOrganiserRoster({ endpoint, sheet, key }) {
+  const url = `${endpoint}?sheet=${encodeURIComponent(sheet)}&key=${encodeURIComponent(key)}`;
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 15000);
+  try {
+    const res = await fetch(url, { signal: controller.signal, cache: "no-store" });
+    const data = await res.json();
+    if (data?.error === "wrong-key") throw new Error("wrong-key");
+    if (!data?.ok || !Array.isArray(data.roster)) throw new Error("unavailable");
+    return data.roster;
+  } finally {
+    clearTimeout(timer);
+  }
+}
