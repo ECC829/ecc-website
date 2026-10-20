@@ -63,27 +63,24 @@ const blankLot = (player) => ({
 
 export default function AuctionPage() {
   const [saved] = useState(() => readJSON(STORAGE_KEY));
-  const [drawSaved] = useState(() => readJSON(DRAW_KEY));
 
-  // Setup
-  // Before the auction starts, always take the latest captains from the draw
-  // (an older saved, possibly empty, list must not hide them).
-  const drawPicked = drawSaved?.picked ?? [];
-  const [captainsText, setCaptainsText] = useState(() =>
-    !saved?.started && drawPicked.length ? drawPicked.join("\n") : saved?.captainsText ?? drawPicked.join("\n")
-  );
-  const [playersText, setPlayersText] = useState(saved?.playersText ?? "");
-  const [budget, setBudget] = useState(saved?.budget ?? t.captainPoints);
-  const [squadSize, setSquadSize] = useState(saved?.squadSize ?? t.playersToBuy);
+  // The board always opens empty: organisers load the captains (from the
+  // draw) and the players (from the sign-ups). An unfinished auction saved on
+  // this device can be resumed with one click.
+  const [captainsText, setCaptainsText] = useState("");
+  const [playersText, setPlayersText] = useState("");
+  const [budget, setBudget] = useState(t.captainPoints);
+  const [squadSize, setSquadSize] = useState(t.playersToBuy);
 
   // Auction state
-  const [started, setStarted] = useState(saved?.started ?? false);
-  const [teams, setTeams] = useState(saved?.teams ?? []); // [{ name, squad: [{player, price}] }]
-  const [pool, setPool] = useState(saved?.pool ?? []);
+  const [started, setStarted] = useState(false);
+  const [teams, setTeams] = useState([]); // [{ name, squad: [{player, price}] }]
+  const [pool, setPool] = useState([]);
   // Players who went unsold at least once. They go back into the pool, marked.
-  const [unsold, setUnsold] = useState(saved?.unsold ?? []);
-  const [lot, setLot] = useState(saved?.lot ?? null);
-  const [history, setHistory] = useState(saved?.history ?? []); // undo stack (snapshots)
+  const [unsold, setUnsold] = useState([]);
+  const [lot, setLot] = useState(null);
+  const [history, setHistory] = useState([]); // undo stack (snapshots)
+  const [canResume, setCanResume] = useState(() => Boolean(saved?.started && saved?.teams?.length));
   const [called, setCalled] = useState(""); // amount a captain has called out
   const [banner, setBanner] = useState(null); // { kind: "sold"|"unsold", text }
   const [burst, setBurst] = useState(0);
@@ -107,7 +104,12 @@ export default function AuctionPage() {
   }, [playersText, captainNames]);
 
   // Persist everything so a refresh or a dropped laptop lid loses nothing.
+  // Nothing is written until the organiser has loaded or typed something.
   useEffect(() => {
+    if (!started && !captainsText && !playersText) return;
+    // Don't overwrite an unfinished auction until the organiser chooses
+    // "Resume it" or "Start fresh" (or opens a new auction).
+    if (!started && canResume) return;
     try {
       localStorage.setItem(
         STORAGE_KEY,
@@ -119,7 +121,7 @@ export default function AuctionPage() {
     } catch {
       /* storage unavailable */
     }
-  }, [captainsText, playersText, budget, squadSize, started, teams, pool, unsold, lot, history]);
+  }, [captainsText, playersText, budget, squadSize, started, teams, pool, unsold, lot, history, canResume]);
 
   /* --------------------------- derived ---------------------------- */
   const leading = lot?.bids.length ? lot.bids[lot.bids.length - 1] : null;
@@ -192,6 +194,7 @@ export default function AuctionPage() {
 
   /* --------------------------- actions ---------------------------- */
   const startAuction = () => {
+    setCanResume(false);
     setTeams(captainNames.map((name) => ({ name, squad: [] })));
     setPool(playerNames);
     setUnsold([]);
@@ -309,6 +312,21 @@ export default function AuctionPage() {
     }
   };
 
+  const resume = () => {
+    if (!saved) return;
+    setCaptainsText(saved.captainsText ?? "");
+    setPlayersText(saved.playersText ?? "");
+    setBudget(saved.budget ?? t.captainPoints);
+    setSquadSize(saved.squadSize ?? t.playersToBuy);
+    setTeams(saved.teams ?? []);
+    setPool(saved.pool ?? []);
+    setUnsold(saved.unsold ?? []);
+    setLot(saved.lot ? { ...saved.lot, status: saved.lot.status === "running" ? "paused" : saved.lot.status, endsAt: null, remainingMs: saved.lot.status === "running" ? Math.max(0, (saved.lot.endsAt ?? 0) - Date.now()) : saved.lot.remainingMs } : null);
+    setHistory(saved.history ?? []);
+    setStarted(Boolean(saved.started));
+    setCanResume(false);
+  };
+
   const fullscreen = () => {
     if (document.fullscreenElement) document.exitFullscreen?.();
     else document.documentElement.requestFullscreen?.();
@@ -361,6 +379,23 @@ export default function AuctionPage() {
             the sign-up sheet with the captains left out. Check the points and squad size,
             then put the board on the big screen.
           </p>
+          {canResume && (
+            <div className="mt-5 flex flex-wrap items-center gap-3 rounded-xl border border-[#e8b234]/40 bg-[#e8b234]/10 px-4 py-3 text-sm text-[#f6edd3]">
+              <span>
+                An unfinished auction is saved on this device ({saved.teams.length} teams,{" "}
+                {(() => {
+                  const sold = saved.teams.reduce((n, tm) => n + tm.squad.length, 0);
+                  return `${sold} ${sold === 1 ? "player" : "players"} sold`;
+                })()}).
+              </span>
+              <button type="button" onClick={resume} className="rounded-full bg-[#e8b234] px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-[#14100a]">
+                Resume it
+              </button>
+              <button type="button" onClick={() => setCanResume(false)} className="text-xs uppercase tracking-widest text-[#f6edd3]/60 hover:text-[#e8b234]">
+                Start fresh
+              </button>
+            </div>
+          )}
 
           <div className="mt-10 grid gap-6 lg:grid-cols-2">
             {[
@@ -369,9 +404,7 @@ export default function AuctionPage() {
                 count: captainNames.length,
                 value: captainsText,
                 set: setCaptainsText,
-                hint: drawPicked.length
-                  ? "Filled in from the captain draw."
-                  : "Run the captain draw first, or type one captain per line.",
+                hint: "Load the captains from the captain draw, or type one per line.",
                 fromDraw: true,
                 placeholder: "Vamsi\nBala\nAjith…",
               },
@@ -502,11 +535,6 @@ export default function AuctionPage() {
               )}
               <div className="flex justify-center gap-4 text-xs uppercase tracking-widest">
                 <Link to="/captain-draw" className="text-[#f6edd3]/50 hover:text-[#e8b234]">← Captain draw</Link>
-                {saved?.teams?.length > 0 && (
-                  <button type="button" onClick={() => setStarted(true)} className="text-[#e8b234] hover:underline">
-                    Resume auction
-                  </button>
-                )}
               </div>
             </div>
           </div>

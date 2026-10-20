@@ -43,10 +43,15 @@ export default function CaptainDrawPage() {
   const [saved] = useState(loadSaved);
   const { counts } = useSignupCounts(`${t.shortName} ${t.year}`);
 
-  const [namesText, setNamesText] = useState(saved?.namesText ?? "");
-  const [target, setTarget] = useState(saved?.target ?? "");
-  const [picked, setPicked] = useState(saved?.picked ?? []);
-  const [started, setStarted] = useState(saved?.started ?? false);
+  // The page always opens empty; organisers load the nominees. A previous
+  // draw can be resumed with one click (e.g. after an accidental refresh).
+  const [namesText, setNamesText] = useState("");
+  const [target, setTarget] = useState("");
+  const [picked, setPicked] = useState([]);
+  const [started, setStarted] = useState(false);
+  const [canResume, setCanResume] = useState(
+    () => Boolean(saved && (saved.picked?.length || saved.namesText))
+  );
   const [spinning, setSpinning] = useState(false);
   const [reel, setReel] = useState("");
   const [justPicked, setJustPicked] = useState(null);
@@ -61,8 +66,11 @@ export default function CaptainDrawPage() {
   const captainsNeeded = Number(target) || suggested || 0;
   const done = started && (picked.length >= captainsNeeded || pool.length === 0);
 
-  // Remember progress so a refresh mid-draw doesn't lose anything.
+  // Remember progress so a refresh mid-draw can be resumed. Nothing is
+  // written until the organiser has loaded or typed names.
   useEffect(() => {
+    if (!namesText && !picked.length) return;
+    if (!started && canResume) return; // keep the saved draw until resumed or dismissed
     try {
       localStorage.setItem(
         STORAGE_KEY,
@@ -71,9 +79,17 @@ export default function CaptainDrawPage() {
     } catch {
       /* storage unavailable */
     }
-  }, [namesText, target, picked, started]);
+  }, [namesText, target, picked, started, canResume]);
 
   useEffect(() => () => clearTimeout(timer.current), []);
+
+  const resume = () => {
+    setNamesText(saved?.namesText ?? "");
+    setTarget(saved?.target ?? "");
+    setPicked(saved?.picked ?? []);
+    setStarted(Boolean(saved?.started));
+    setCanResume(false);
+  };
 
   const drawNext = useCallback(() => {
     if (spinning || pool.length === 0) return;
@@ -158,6 +174,28 @@ export default function CaptainDrawPage() {
             Load the captain nominees straight from the sign-up sheet (or type them in),
             then put the board on the big screen and draw the captains live.
           </p>
+          {canResume && (
+            <div className="mt-5 flex flex-wrap items-center gap-3 rounded-xl border border-[#e8b234]/40 bg-[#e8b234]/10 px-4 py-3 text-sm text-[#f6edd3]">
+              <span>
+                A previous draw is saved on this device
+                {saved?.picked?.length ? ` (${saved.picked.length} captain${saved.picked.length === 1 ? "" : "s"} drawn)` : ""}.
+              </span>
+              <button
+                type="button"
+                onClick={resume}
+                className="rounded-full bg-[#e8b234] px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-[#14100a]"
+              >
+                Resume it
+              </button>
+              <button
+                type="button"
+                onClick={() => setCanResume(false)}
+                className="text-xs uppercase tracking-widest text-[#f6edd3]/60 hover:text-[#e8b234]"
+              >
+                Start fresh
+              </button>
+            </div>
+          )}
 
           <div className="mt-10 grid gap-6 lg:grid-cols-[1.35fr_1fr]">
             {/* Team sheet */}
@@ -285,7 +323,10 @@ export default function CaptainDrawPage() {
                 type="button"
                 className="w-full rounded-full bg-[#e8b234] px-8 py-4 font-display text-lg font-bold uppercase tracking-widest text-[#14100a] shadow-[0_8px_30px_rgba(232,178,52,0.35)] transition hover:bg-[#f3c654] disabled:cursor-not-allowed disabled:opacity-40"
                 disabled={nominees.length === 0 || captainsNeeded < 1}
-                onClick={() => setStarted(true)}
+                onClick={() => {
+                  setCanResume(false);
+                  setStarted(true);
+                }}
               >
                 {picked.length > 0 ? "Back to the draw board" : "Walk out to the draw →"}
               </button>
