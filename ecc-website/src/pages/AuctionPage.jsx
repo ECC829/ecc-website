@@ -86,7 +86,6 @@ export default function AuctionPage() {
   const [burst, setBurst] = useState(0);
   const [now, setNow] = useState(() => Date.now());
 
-  const [drawNote, setDrawNote] = useState("");
   const captainNames = useMemo(() => parseNames(captainsText), [captainsText]);
   // Pool names that look like a captain under a different spelling, e.g.
   // captain "VAMSI" vs sign-up "Vamsi D." (same first name).
@@ -441,28 +440,25 @@ export default function AuctionPage() {
                 />
                 <p className="mt-3 text-xs leading-5 text-[#1b1a14]/60">{box.hint}</p>
                 {box.fromDraw && (
-                  <div className="mt-4 rounded-lg border border-[#1b1a14]/15 bg-[#1b1a14]/[0.04] p-3">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const picked = readJSON(DRAW_KEY)?.picked ?? [];
-                        if (!picked.length) {
-                          setDrawNote("No captains drawn yet — run the captain draw first.");
-                          return;
-                        }
-                        setCaptainsText(picked.join("\n"));
-                        const caps = new Set(picked.map((c) => c.toLowerCase()));
-                        setPlayersText((text) =>
-                          parseNames(text).filter((n) => !caps.has(n.toLowerCase())).join("\n")
-                        );
-                        setDrawNote(`Loaded ${picked.length} captains from the draw.`);
-                      }}
-                      className="rounded-full bg-[#0c2a19] px-4 py-2 text-xs font-semibold uppercase tracking-widest text-[#f6edd3] transition hover:bg-[#123a24]"
-                    >
-                      Load captains from the draw
-                    </button>
-                    {drawNote && <p className="mt-2 text-xs text-[#1b1a14]/70" role="status">{drawNote}</p>}
-                  </div>
+                  <OrganiserLoad
+                    label="Load captains from the draw"
+                    onLoaded={(roster, data) => {
+                      const drawn = data?.drawn;
+                      if (!drawn?.captains?.length) {
+                        return "No captain draw saved yet — finish the captain draw first.";
+                      }
+                      setCaptainsText(drawn.captains.join("\n"));
+                      const caps = new Set(drawn.captains.map((c) => c.toLowerCase()));
+                      setPlayersText((text) =>
+                        parseNames(text).filter((n) => !caps.has(n.toLowerCase())).join("\n")
+                      );
+                      const when = new Date(drawn.at);
+                      const stamp = isNaN(when)
+                        ? ""
+                        : ` (drawn ${when.toLocaleDateString(undefined, { month: "short", day: "numeric" })}, ${when.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" })})`;
+                      return `Loaded ${drawn.captains.length} captains from the draw${stamp}.`;
+                    }}
+                  />
                 )}
                 {box.organiser && (
                   <OrganiserLoad

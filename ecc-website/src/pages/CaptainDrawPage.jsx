@@ -5,6 +5,7 @@ import { internalTournament as t } from "../data/internalTournament";
 import { useSignupCounts } from "../lib/useSignupCounts";
 import { Confetti, CricketBall, SplitFlap } from "../components/DrawEffects";
 import OrganiserLoad from "../components/OrganiserLoad";
+import SaveDraw from "../components/SaveDraw";
 
 const STORAGE_KEY = `ecc-captain-draw:${t.shortName} ${t.year}`;
 
@@ -456,6 +457,7 @@ export default function CaptainDrawPage() {
               Copy results
             </button>
           )}
+          {done && <SaveDraw captains={picked} />}
           {done && (
             <div className="mt-4">
               <Link

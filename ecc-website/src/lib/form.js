@@ -90,8 +90,8 @@ export async function fetchSheetCounts({ endpoint, sheet }) {
  * boards. Needs the organiser key (kept in the Apps Script's Script
  * Properties). Returns [{ name, captain }] or throws "wrong-key".
  */
-export async function fetchOrganiserRoster({ endpoint, sheet, key }) {
-  const url = `${endpoint}?sheet=${encodeURIComponent(sheet)}&key=${encodeURIComponent(key)}`;
+export async function fetchOrganiserData({ endpoint, sheet, key }) {
+  const url = `${endpoint}?sheet=${encodeURIComponent(sheet)}&key=${encodeURIComponent(key)}&t=${Date.now()}`;
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), 15000);
   try {
@@ -99,8 +99,23 @@ export async function fetchOrganiserRoster({ endpoint, sheet, key }) {
     const data = await res.json();
     if (data?.error === "wrong-key") throw new Error("wrong-key");
     if (!data?.ok || !Array.isArray(data.roster)) throw new Error("unavailable");
-    return data.roster;
+    return data; // { roster: [{name, captain}], drawn: {at, captains} | null }
   } finally {
     clearTimeout(timer);
   }
+}
+
+export async function fetchOrganiserRoster(args) {
+  return (await fetchOrganiserData(args)).roster;
+}
+
+/** Organiser-only: store the drawn captains in the Sheet for every device. */
+export async function saveDrawnCaptains({ endpoint, key, captains }) {
+  await fetch(endpoint, {
+    method: "POST",
+    mode: "no-cors",
+    keepalive: true,
+    headers: { "Content-Type": "text/plain;charset=utf-8" },
+    body: JSON.stringify({ action: "saveCaptains", key, captains }),
+  });
 }
