@@ -11,7 +11,10 @@
  */
 
 /** Bump this when the script changes, to confirm the new version is live. */
-const SCRIPT_VERSION = 6;
+const SCRIPT_VERSION = 7;
+
+/** Tab where the organisers' captain draw result is stored (organiser key only). */
+const DRAW_TAB = "Captain Draw";
 
 /**
  * The only tabs this script will write to or read from, and the only fields
@@ -48,6 +51,26 @@ function doPost(e) {
 
     // Spam trap: real visitors never fill the hidden "website" field.
     if (data.website) return json({ ok: true });
+
+    // Organisers save the captain draw so every device can load it.
+    if (data.action === "saveCaptains") {
+      if (!isOrganiser(data.key)) return json({ ok: false, error: "wrong-key" });
+      const captains = (Array.isArray(data.captains) ? data.captains : [])
+        .map(function (c) { return clean(String(c).replace(/\s+/g, " ").trim().slice(0, 80)); })
+        .filter(String)
+        .slice(0, 40);
+      const ss = SpreadsheetApp.getActiveSpreadsheet();
+      const tab = ss.getSheetByName(DRAW_TAB) || ss.insertSheet(DRAW_TAB);
+      tab.clear();
+      const when = new Date();
+      const rows = [["Drawn at", "Team", "Captain"]].concat(
+        captains.map(function (c, i) { return [when, i + 1, c]; })
+      );
+      tab.getRange(1, 1, rows.length, 3).setValues(rows);
+      tab.getRange(1, 1, 1, 3).setFontWeight("bold");
+      tab.setFrozenRows(1);
+      return json({ ok: true, saved: captains.length });
+    }
 
     const sheetName = String(data.sheet || "");
     const form = Object.prototype.hasOwnProperty.call(FORMS, sheetName) ? FORMS[sheetName] : null;
@@ -135,12 +158,16 @@ function doGet(e) {
   }
   const form = Object.prototype.hasOwnProperty.call(FORMS, sheetName) ? FORMS[sheetName] : null;
   if (!form) return json({ ok: false, error: "invalid" });
-  const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(String(sheetName));
-  if (!sheet || sheet.getLastRow() < 2) {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const sheet = ss.getSheetByName(String(sheetName));
+  const hasRows = sheet && sheet.getLastRow() >= 2;
+  if (!hasRows && !e.parameter.key) {
     return json({ ok: true, count: 0, captains: 0, players: [] });
   }
 
-  const values = sheet.getRange(1, 1, sheet.getLastRow(), sheet.getLastColumn()).getValues();
+  const values = hasRows
+    ? sheet.getRange(1, 1, sheet.getLastRow(), sheet.getLastColumn()).getValues()
+    : [["Name", "Captain nomination"]];
   const headers = values.shift();
   const nameCol = headers.indexOf("Name");
   const captainCol = headers.indexOf("Captain nomination");
@@ -162,7 +189,14 @@ function doGet(e) {
         captain: captainCol !== -1 && String(row[captainCol]).trim().toLowerCase() === "yes",
       };
     });
-    return json({ ok: true, organiser: true, count: rows.length, captains: captains, roster: roster });
+    return json({
+      ok: true,
+      organiser: true,
+      count: rows.length,
+      captains: captains,
+      roster: roster,
+      drawn: readDrawnCaptains(ss),
+    });
   }
   if (e.parameter.key) {
     Utilities.sleep(1500); // slow down key guessing
@@ -173,6 +207,16 @@ function doGet(e) {
     return { name: form.publicNames ? publicName(row[nameCol]) : "" };
   });
   return json({ ok: true, count: rows.length, captains: captains, players: players });
+}
+
+/** The last saved captain draw: { at, captains: [...] } or null. */
+function readDrawnCaptains(ss) {
+  const tab = ss.getSheetByName(DRAW_TAB);
+  if (!tab || tab.getLastRow() < 2) return null;
+  const rows = tab.getRange(2, 1, tab.getLastRow() - 1, 3).getValues();
+  const captains = rows.map(function (r) { return String(r[2]).replace(/^'/, ""); }).filter(String);
+  const at = rows[0][0] instanceof Date ? rows[0][0].toISOString() : String(rows[0][0]);
+  return captains.length ? { at: at, captains: captains } : null;
 }
 
 /**

@@ -1,17 +1,8 @@
 import { useState } from "react";
 import { googleSheetEndpoint } from "../data/forms";
 import { internalTournament as t } from "../data/internalTournament";
-import { fetchOrganiserRoster } from "../lib/form";
-
-const KEY_STORE = "ecc-organiser-key";
-
-function readKey() {
-  try {
-    return localStorage.getItem(KEY_STORE) || "";
-  } catch {
-    return "";
-  }
-}
+import { fetchOrganiserData } from "../lib/form";
+import { readKey, storeKey } from "../lib/organiserKey";
 
 /**
  * "Load from sign-ups" button for organiser pages. Asks for the organiser key
@@ -23,25 +14,24 @@ export default function OrganiserLoad({ label, onLoaded, describe }) {
   const [status, setStatus] = useState({ kind: "idle", text: "" });
 
   const load = async () => {
-    if (!key.trim()) {
+    // The key may have been entered in another box on this page.
+    const useKey = key.trim() || readKey();
+    if (!useKey) {
       setAskKey(true);
       return;
     }
+    if (!key.trim()) setKey(useKey);
     setStatus({ kind: "busy", text: "Loading from the sign-up sheet…" });
     try {
-      const roster = await fetchOrganiserRoster({
+      const data = await fetchOrganiserData({
         endpoint: googleSheetEndpoint,
         sheet: `${t.shortName} ${t.year}`,
-        key: key.trim(),
+        key: useKey,
       });
-      try {
-        localStorage.setItem(KEY_STORE, key.trim());
-      } catch {
-        /* storage unavailable */
-      }
+      storeKey(useKey);
       setAskKey(false);
-      const text = onLoaded(roster);
-      setStatus({ kind: "ok", text: text || describe?.(roster) || `Loaded ${roster.length} sign-ups.` });
+      const text = onLoaded(data.roster, data);
+      setStatus({ kind: "ok", text: text || describe?.(data.roster) || `Loaded ${data.roster.length} sign-ups.` });
     } catch (err) {
       if (err.message === "wrong-key") {
         setAskKey(true);
