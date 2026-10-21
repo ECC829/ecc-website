@@ -193,12 +193,12 @@ export default function Header() {
         <nav
           aria-label="Mobile"
           className={cx(
-            "absolute right-0 top-0 flex h-full w-[82%] max-w-sm flex-col border-l border-white/10 bg-ink-900 px-6 pb-8 pt-24 transition-transform duration-300 ease-out",
+            "absolute right-0 top-0 flex h-full w-[82%] max-w-sm flex-col overflow-y-auto border-l border-white/10 bg-ink-900 px-6 pb-8 pt-36 transition-transform duration-300 ease-out",
             open ? "translate-x-0" : "translate-x-full"
           )}
         >
           <ul className="flex flex-col">
-            {navItems.map((item, index) => (
+            {navItems.map((item) => (
               <li key={item.to} className="border-b border-white/[0.07]">
                 <NavLink
                   to={item.to}
@@ -207,14 +207,11 @@ export default function Header() {
                   onClick={close}
                   className={({ isActive }) =>
                     cx(
-                      "flex items-baseline gap-4 py-4 font-display text-3xl font-bold uppercase tracking-wide transition",
+                      "block py-3.5 font-display text-2xl font-bold uppercase tracking-wide transition",
                       isActive ? "text-gold-300" : "text-white hover:text-gold-200"
                     )
                   }
                 >
-                  <span className="font-mono text-[11px] font-medium tracking-widest text-slate-600">
-                    {String(index + 1).padStart(2, "0")}
-                  </span>
                   {item.label}
                 </NavLink>
               </li>
