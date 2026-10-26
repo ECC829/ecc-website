@@ -15,6 +15,7 @@ import SponsorGrid from "../components/Sponsors";
 import { captionOf, featuredAchievements, photoUrl } from "../data/achievements";
 import { internalTournament as it } from "../data/internalTournament";
 import { useSignupCounts } from "../lib/useSignupCounts";
+import { useSignupsOpen } from "../lib/useSignupsOpen";
 
 function Hero() {
   return (
@@ -134,6 +135,7 @@ function Marquee() {
 
 export default function HomePage() {
   const { counts: signups } = useSignupCounts(`${it.shortName} ${it.year}`);
+  const signupsOpen = useSignupsOpen();
 
   const roleCounts = countByRole();
 
@@ -194,19 +196,19 @@ export default function HomePage() {
                 Club event · {it.dateLabel}
               </p>
               <p className="mt-1 font-display text-2xl font-bold uppercase tracking-wide text-white">
-                {it.name} — sign-ups open
+                {it.name} — {signupsOpen ? `sign-ups close ${it.signupDeadlineLabel}` : "sign-ups closed"}
               </p>
               <p className="mt-1 text-sm text-slate-400">
                 Captains by lottery, squads by player auction. {it.playersPerTeam} players a side.
               </p>
               {signups && (
                 <p className="mt-2 font-mono text-[11px] uppercase tracking-widest text-gold-300">
-                  {signups.count} {signups.count === 1 ? "player" : "players"} signed up so far
+                  {signups.count} {signups.count === 1 ? "player" : "players"} signed up{signupsOpen ? " so far" : ""}
                 </p>
               )}
             </div>
             <Link to="/internal-tournament" className="btn-primary shrink-0">
-              Sign up
+              {signupsOpen ? "Sign up" : "See who's in"}
             </Link>
           </Container>
         </section>

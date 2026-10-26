@@ -11,7 +11,7 @@
  */
 
 /** Bump this when the script changes, to confirm the new version is live. */
-const SCRIPT_VERSION = 8;
+const SCRIPT_VERSION = 9;
 
 /** Tab where the organisers' captain draw result is stored (organiser key only). */
 const DRAW_TAB = "Captain Draw";
@@ -37,6 +37,7 @@ const FORMS = {
       Notes: { max: 500 },
     },
     maxRows: 400, // stop accepting once the tab is this full (flood protection)
+    closesAt: "2026-10-26T21:00:00-04:00", // no new sign-ups after this (Eastern time)
     publicNames: true, // allow the website to show "first name + last initial"
   },
 };
@@ -104,6 +105,10 @@ function doPost(e) {
     const sheetName = String(data.sheet || "");
     const form = Object.prototype.hasOwnProperty.call(FORMS, sheetName) ? FORMS[sheetName] : null;
     if (!form) return json({ ok: false, error: "invalid" });
+
+    if (form.closesAt && Date.now() >= new Date(form.closesAt).getTime()) {
+      return json({ ok: false, error: "closed" });
+    }
 
     if (tooManyRecently()) return json({ ok: false, error: "busy" });
 
