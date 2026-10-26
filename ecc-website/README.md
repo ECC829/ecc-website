@@ -118,9 +118,11 @@ start date are referenced throughout the site.
 - Player email addresses and phone numbers are **not** stored in `src/` — anything
   there is bundled into the public site. They live in `private/player-contacts.csv`,
   which is git-ignored and never published.
-- The site uses `HashRouter`, so deep links (`/#/players/...`) work on any static
-  host with no rewrite rules. Switch to `BrowserRouter` in `main.jsx` if the host
-  supports SPA fallback.
+- Pages have clean addresses (e.g. `/internal-tournament`). `npm run build` also
+  writes one HTML file per page (`scripts/build-meta.mjs`, using
+  `src/data/pageMeta.js`) so shared links show that page's title and preview
+  image. Old `/#/page` links are redirected automatically. Vercel serves any
+  other address with `index.html` (see `vercel.json`).
 - The contact, sponsor and registration forms open the visitor's email client
   with the submission pre-filled — no backend required. The leadership
   nomination form posts to a Google Apps Script endpoint (see
