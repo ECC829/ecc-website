@@ -4,6 +4,9 @@ import { Container } from "../components/ui";
 import { Confetti, CricketBall, SplitFlap } from "../components/DrawEffects";
 import { internalTournament as t } from "../data/internalTournament";
 import OrganiserLoad from "../components/OrganiserLoad";
+import { googleSheetEndpoint } from "../data/forms";
+import { fetchOrganiserData, saveAuctionBackup } from "../lib/form";
+import { readKey, storeKey } from "../lib/organiserKey";
 
 const SHEET = `${t.shortName} ${t.year}`;
 const STORAGE_KEY = `ecc-auction:${SHEET}`;
@@ -85,6 +88,9 @@ export default function AuctionPage() {
   const [banner, setBanner] = useState(null); // { kind: "sold"|"unsold", text }
   const [burst, setBurst] = useState(0);
   const [now, setNow] = useState(() => Date.now());
+  const [roles, setRoles] = useState({}); // lower-case player name -> role from sign-up
+  const [backup, setBackup] = useState({ kind: "idle", at: null }); // idle | saving | ok | no-key | error
+  const [keyInput, setKeyInput] = useState("");
 
   const captainNames = useMemo(() => parseNames(captainsText), [captainsText]);
   // Pool names that look like a captain under a different spelling, e.g.
@@ -114,13 +120,13 @@ export default function AuctionPage() {
         STORAGE_KEY,
         JSON.stringify({
           captainsText, playersText, budget, squadSize,
-          started, teams, pool, unsold, lot, history: history.slice(-30),
+          started, teams, pool, unsold, lot, history: history.slice(-30), roles,
         })
       );
     } catch {
       /* storage unavailable */
     }
-  }, [captainsText, playersText, budget, squadSize, started, teams, pool, unsold, lot, history, canResume]);
+  }, [captainsText, playersText, budget, squadSize, started, teams, pool, unsold, lot, history, canResume, roles]);
 
   /* --------------------------- derived ---------------------------- */
   const leading = lot?.bids.length ? lot.bids[lot.bids.length - 1] : null;
@@ -140,6 +146,41 @@ export default function AuctionPage() {
   const tooLow = called !== "" && calledNum > 0 && calledNum < minNext;
   const allFull = teams.length > 0 && teams.every((tm) => slotsLeft(tm) <= 0);
   const finished = started && !lot && (allFull || pool.length === 0);
+
+  // Save to the Sheet, then read it back to make sure the save really landed.
+  const runBackup = async (key, snapshotTeams, complete) => {
+    setBackup((b) => ({ ...b, kind: "saving" }));
+    try {
+      await saveAuctionBackup({ endpoint: googleSheetEndpoint, key, teams: snapshotTeams, budget, complete });
+      await new Promise((res) => setTimeout(res, 1200));
+      const data = await fetchOrganiserData({ endpoint: googleSheetEndpoint, sheet: SHEET, key });
+      const sold = (list) => list.reduce((n, tm) => n + tm.squad.length, 0);
+      if (data.auction && data.auction.teams.length === snapshotTeams.length && sold(data.auction.teams) === sold(snapshotTeams)) {
+        setBackup({ kind: "ok", at: new Date() });
+      } else {
+        setBackup({ kind: "error", at: null });
+      }
+    } catch (err) {
+      setBackup({ kind: err.message === "wrong-key" ? "no-key" : "error", at: null });
+    }
+  };
+
+  // Back up the auction to the Google Sheet whenever the squads change, so a
+  // crashed laptop or cleared browser never loses the results.
+  const backupSig = started ? JSON.stringify([teams, finished]) : "";
+  useEffect(() => {
+    if (!backupSig || !teams.length) return undefined;
+    const key = readKey();
+    const timer = setTimeout(async () => {
+      if (!key) {
+        setBackup({ kind: "no-key", at: null });
+        return;
+      }
+      runBackup(key, teams, finished);
+    }, 800);
+    return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [backupSig]);
   const freshPool = pool.filter((p) => !unsold.includes(p));
 
   /* ---------------------------- clock ----------------------------- */
@@ -322,6 +363,7 @@ export default function AuctionPage() {
     setUnsold(saved.unsold ?? []);
     setLot(saved.lot ? { ...saved.lot, status: saved.lot.status === "running" ? "paused" : saved.lot.status, endsAt: null, remainingMs: saved.lot.status === "running" ? Math.max(0, (saved.lot.endsAt ?? 0) - Date.now()) : saved.lot.remainingMs } : null);
     setHistory(saved.history ?? []);
+    setRoles(saved.roles ?? {});
     setStarted(Boolean(saved.started));
     setCanResume(false);
   };
@@ -464,6 +506,7 @@ export default function AuctionPage() {
                   <OrganiserLoad
                     label="Load players from sign-ups"
                     onLoaded={(roster) => {
+                      setRoles(Object.fromEntries(roster.map((r) => [r.name.toLowerCase(), r.role || ""])));
                       const caps = new Set(captainNames.map((c) => c.toLowerCase()));
                       const names = roster.map((r) => r.name).filter((n) => !caps.has(n.toLowerCase()));
                       setPlayersText(names.join("\n"));
@@ -559,6 +602,55 @@ export default function AuctionPage() {
             </h1>
           </div>
           <div className="flex flex-wrap gap-2">
+            <span
+              className={`inline-flex items-center gap-2 rounded-full border px-3 py-2 text-[11px] font-semibold uppercase tracking-widest ${
+                backup.kind === "ok"
+                  ? "border-[#7ee2a8]/40 text-[#7ee2a8]"
+                  : backup.kind === "no-key" || backup.kind === "error"
+                    ? "border-[#ff8a96]/40 text-[#ff8a96]"
+                    : "border-[#f6edd3]/20 text-[#f6edd3]/60"
+              }`}
+              role="status"
+              title="Sales are backed up to the Google Sheet (Auction Results tab)"
+            >
+              {backup.kind === "ok"
+                ? `Backed up ✓ ${backup.at.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" })}`
+                : backup.kind === "saving"
+                  ? "Backing up…"
+                  : backup.kind === "no-key"
+                    ? "Backup off — no key"
+                    : backup.kind === "error"
+                      ? "Backup not confirmed"
+                      : "Backup on"}
+            </span>
+            {backup.kind === "error" && (
+              <button type="button" onClick={() => runBackup(readKey(), teams, finished)} className={pill}>
+                Retry backup
+              </button>
+            )}
+            {backup.kind === "no-key" && (
+              <span className="inline-flex items-center gap-1">
+                <input
+                  type="password"
+                  value={keyInput}
+                  onChange={(e) => setKeyInput(e.target.value)}
+                  placeholder="Organiser key"
+                  aria-label="Organiser key for backup"
+                  className="w-36 rounded-full border border-[#f6edd3]/25 bg-black/40 px-3 py-1.5 text-xs text-[#f6edd3] focus:border-[#e8b234] focus:outline-none"
+                />
+                <button
+                  type="button"
+                  onClick={async () => {
+                    if (!keyInput.trim()) return;
+                    storeKey(keyInput.trim());
+                    runBackup(keyInput.trim(), teams, finished);
+                  }}
+                  className={pill}
+                >
+                  Turn on
+                </button>
+              </span>
+            )}
             <button type="button" onClick={fullscreen} className={pill}>Full screen</button>
             <button type="button" onClick={undoLast} disabled={!history.length || lot?.status === "running"} className={pill}>Undo last sale</button>
             <button type="button" onClick={copyResults} className={pill}>Copy results</button>
@@ -613,6 +705,11 @@ export default function AuctionPage() {
                 <div className="mt-4 flex justify-center lg:justify-start">
                   <SplitFlap text={lot.player} />
                 </div>
+                {roles[lot.player.toLowerCase()] && (
+                  <p className="mt-4 inline-flex items-center gap-2 rounded-full border border-[#e8b234]/50 bg-[#e8b234]/10 px-4 py-1.5 font-display text-lg font-bold uppercase tracking-[0.2em] text-[#e8b234]">
+                    {roles[lot.player.toLowerCase()]}
+                  </p>
+                )}
               </div>
 
               <div className="rounded-2xl bg-black/40 p-5 text-center">

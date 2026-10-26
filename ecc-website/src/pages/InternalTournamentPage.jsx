@@ -195,6 +195,59 @@ function PlayerPool({ players, loading }) {
   );
 }
 
+function Squads({ squads }) {
+  const teams = (squads?.teams ?? []).filter((tm) => tm.captain);
+  if (!teams.length || !teams.some((tm) => tm.players.length)) return null;
+  const final = squads.status === "Final";
+  return (
+    <Section className="border-b border-white/[0.07] bg-ink-900/60">
+      <Container>
+        <SectionHeading
+          eyebrow={final ? "After the auction" : "Auction in progress"}
+          title={final ? "The teams" : "Squads so far"}
+          lead={
+            final
+              ? "Every captain's squad from the player auction."
+              : "Squads fill up live as players are sold in the auction."
+          }
+          action={
+            <span
+              className={`inline-flex items-center gap-2 rounded-full px-3 py-1 font-mono text-[11px] uppercase tracking-widest ${
+                final ? "bg-gold-400/15 text-gold-300" : "bg-red-500/15 text-red-300"
+              }`}
+            >
+              {!final && <span className="h-2 w-2 animate-pulse rounded-full bg-red-400" aria-hidden="true" />}
+              {final ? "Final squads" : "Live"}
+            </span>
+          }
+        />
+        <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {teams.map((tm, i) => (
+            <div key={`${tm.captain}-${i}`} className="rounded-2xl border border-white/[0.08] bg-ink-950 p-5">
+              <p className="font-mono text-[10px] uppercase tracking-widest text-slate-500">Team {i + 1}</p>
+              <p className="mt-1 flex items-center gap-2 font-display text-2xl font-bold uppercase tracking-wide text-white">
+                {tm.captain}
+                <span className="rounded-full border border-gold-400/40 bg-gold-400/10 px-2 py-0.5 text-[10px] font-semibold tracking-widest text-gold-300">
+                  Captain
+                </span>
+              </p>
+              <ul className="mt-4 space-y-1.5">
+                {tm.players.map((p, j) => (
+                  <li key={`${p}-${j}`} className="flex items-center gap-3 text-[15px] text-slate-300">
+                    <span className="w-5 font-mono text-xs text-slate-600">{j + 2}</span>
+                    {p}
+                  </li>
+                ))}
+                {!tm.players.length && <li className="text-sm text-slate-600">No players yet</li>}
+              </ul>
+            </div>
+          ))}
+        </div>
+      </Container>
+    </Section>
+  );
+}
+
 function SignupForm({ onSignedUp, onSaved }) {
   const [previous, setPrevious] = useState(readSignedUp);
   const { values, errors, setErrors, setField, status, setStatus, reset } = useForm({
@@ -527,6 +580,8 @@ export default function InternalTournamentPage() {
           </div>
         </Container>
       </header>
+
+      <Squads squads={counts?.squads} />
 
       <PlayerPool players={counts?.players ?? null} loading={loading} />
 

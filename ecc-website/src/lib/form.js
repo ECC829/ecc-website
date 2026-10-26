@@ -82,6 +82,7 @@ export async function fetchSheetCounts({ endpoint, sheet }) {
     count: data.count,
     captains: data.captains ?? 0,
     players: Array.isArray(data.players) ? data.players : null,
+    squads: data.squads && Array.isArray(data.squads.teams) ? data.squads : null,
   };
 }
 
@@ -117,5 +118,16 @@ export async function saveDrawnCaptains({ endpoint, key, captains }) {
     keepalive: true,
     headers: { "Content-Type": "text/plain;charset=utf-8" },
     body: JSON.stringify({ action: "saveCaptains", key, captains }),
+  });
+}
+
+/** Organiser-only: back up the auction (teams, squads, prices) to the Sheet. */
+export async function saveAuctionBackup({ endpoint, key, teams, budget, complete }) {
+  await fetch(endpoint, {
+    method: "POST",
+    mode: "no-cors",
+    keepalive: true,
+    headers: { "Content-Type": "text/plain;charset=utf-8" },
+    body: JSON.stringify({ action: "saveAuction", key, teams, budget, complete }),
   });
 }
