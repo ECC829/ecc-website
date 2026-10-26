@@ -94,13 +94,22 @@ export default function AuctionPage() {
 
   const captainNames = useMemo(() => parseNames(captainsText), [captainsText]);
   // Pool names that look like a captain under a different spelling, e.g.
-  // captain "VAMSI" vs sign-up "Vamsi D." (same first name).
+  // captain "VAMSI" vs sign-up "Vamsi D." (same first name, and the rest of
+  // the name is missing or matches). Two different people who only share a
+  // first name ("Mahesh Mannam" vs "Mahesh Reddy Pesani") are not flagged.
   const lookalikes = useMemo(() => {
-    const firsts = new Set(captainNames.map((c) => c.split(" ")[0].replace(/\./g, "").toLowerCase()));
-    const exact = new Set(captainNames.map((c) => c.toLowerCase()));
+    const words = (n) => n.replace(/\./g, " ").toLowerCase().split(/\s+/).filter(Boolean);
+    const caps = captainNames.map(words);
+    const alike = (a, b) => {
+      if (!a.length || !b.length || a[0] !== b[0]) return false;
+      const restA = a.slice(1);
+      const restB = b.slice(1);
+      if (!restA.length || !restB.length) return true; // "Vamsi" vs "Vamsi D"
+      return restA.some((x) => restB.some((y) => x.startsWith(y) || y.startsWith(x)));
+    };
     return parseNames(playersText).filter((p) => {
-      const first = p.split(" ")[0].replace(/\./g, "").toLowerCase();
-      return exact.has(p.toLowerCase()) || firsts.has(first);
+      const w = words(p);
+      return caps.some((c) => alike(c, w));
     });
   }, [captainNames, playersText]);
   const playerNames = useMemo(() => {
