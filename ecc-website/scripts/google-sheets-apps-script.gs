@@ -11,10 +11,13 @@
  */
 
 /** Bump this when the script changes, to confirm the new version is live. */
-const SCRIPT_VERSION = 7;
+const SCRIPT_VERSION = 8;
 
 /** Tab where the organisers' captain draw result is stored (organiser key only). */
 const DRAW_TAB = "Captain Draw";
+
+/** Tab where the player auction is backed up after every sale (organiser key only). */
+const AUCTION_TAB = "Auction Results";
 
 /**
  * The only tabs this script will write to or read from, and the only fields
@@ -70,6 +73,32 @@ function doPost(e) {
       tab.getRange(1, 1, 1, 3).setFontWeight("bold");
       tab.setFrozenRows(1);
       return json({ ok: true, saved: captains.length });
+    }
+
+    // Organisers back up the auction after every sale.
+    if (data.action === "saveAuction") {
+      if (!isOrganiser(data.key)) return json({ ok: false, error: "wrong-key" });
+      const teams = (Array.isArray(data.teams) ? data.teams : []).slice(0, 40);
+      const budget = Number(data.budget) || 0;
+      const text = function (v) { return clean(String(v == null ? "" : v).replace(/\s+/g, " ").trim().slice(0, 80)); };
+      const rows = [["Saved at", "Team", "Captain", "Player", "Price", "Purse left", "Status"]];
+      const when = new Date();
+      const status = data.complete ? "Final" : "In progress";
+      teams.forEach(function (tm, i) {
+        const squad = (Array.isArray(tm.squad) ? tm.squad : []).slice(0, 20);
+        const spent = squad.reduce(function (n, s) { return n + (Number(s.price) || 0); }, 0);
+        if (!squad.length) rows.push([when, i + 1, text(tm.name), "", "", budget - spent, status]);
+        squad.forEach(function (s) {
+          rows.push([when, i + 1, text(tm.name), text(s.player), Number(s.price) || 0, budget - spent, status]);
+        });
+      });
+      const ss = SpreadsheetApp.getActiveSpreadsheet();
+      const tab = ss.getSheetByName(AUCTION_TAB) || ss.insertSheet(AUCTION_TAB);
+      tab.clear();
+      tab.getRange(1, 1, rows.length, rows[0].length).setValues(rows);
+      tab.getRange(1, 1, 1, rows[0].length).setFontWeight("bold");
+      tab.setFrozenRows(1);
+      return json({ ok: true, saved: rows.length - 1 });
     }
 
     const sheetName = String(data.sheet || "");
@@ -171,6 +200,7 @@ function doGet(e) {
   const headers = values.shift();
   const nameCol = headers.indexOf("Name");
   const captainCol = headers.indexOf("Captain nomination");
+  const roleCol = headers.indexOf("Role");
   const rows = values.filter(function (row) {
     return nameCol === -1 || String(row[nameCol]).trim() !== "";
   });
@@ -187,6 +217,7 @@ function doGet(e) {
       return {
         name: String(row[nameCol]).replace(/\s+/g, " ").trim(),
         captain: captainCol !== -1 && String(row[captainCol]).trim().toLowerCase() === "yes",
+        role: roleCol === -1 ? "" : String(row[roleCol]).trim(),
       };
     });
     return json({
@@ -196,6 +227,7 @@ function doGet(e) {
       captains: captains,
       roster: roster,
       drawn: readDrawnCaptains(ss),
+      auction: readAuction(ss, false),
     });
   }
   if (e.parameter.key) {
@@ -206,7 +238,46 @@ function doGet(e) {
   const players = rows.map(function (row) {
     return { name: form.publicNames ? publicName(row[nameCol]) : "" };
   });
-  return json({ ok: true, count: rows.length, captains: captains, players: players });
+  return json({
+    ok: true,
+    count: rows.length,
+    captains: captains,
+    players: players,
+    squads: form.publicNames ? readAuction(ss, true) : null,
+  });
+}
+
+/**
+ * The backed-up auction: { at, status, teams: [{ name, purseLeft, squad: [{ player, price }] }] }.
+ * The public version (for the website's Teams section) shortens names and
+ * leaves out prices and purses.
+ */
+function readAuction(ss, forPublic) {
+  const tab = ss.getSheetByName(AUCTION_TAB);
+  if (!tab || tab.getLastRow() < 2) return null;
+  const rows = tab.getRange(2, 1, tab.getLastRow() - 1, 7).getValues();
+  const strip = function (v) { return String(v).replace(/^'/, ""); };
+  const teams = [];
+  rows.forEach(function (r) {
+    const idx = Number(r[1]) - 1;
+    if (idx < 0) return;
+    if (!teams[idx]) teams[idx] = { name: strip(r[2]), purseLeft: Number(r[5]) || 0, squad: [] };
+    if (r[3] !== "") teams[idx].squad.push({ player: strip(r[3]), price: Number(r[4]) || 0 });
+  });
+  const list = teams.filter(Boolean);
+  const at = rows[0][0] instanceof Date ? rows[0][0].toISOString() : String(rows[0][0]);
+  const status = String(rows[0][6] || "");
+  if (!forPublic) return { at: at, status: status, teams: list };
+  return {
+    at: at,
+    status: status,
+    teams: list.map(function (tm) {
+      return {
+        captain: publicName(tm.name),
+        players: tm.squad.map(function (s) { return publicName(s.player); }),
+      };
+    }),
+  };
 }
 
 /** The last saved captain draw: { at, captains: [...] } or null. */
