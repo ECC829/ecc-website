@@ -13,7 +13,10 @@ const navItems = [
   { to: "/tournaments", label: "Tournaments" },
   { to: "/achievements", label: "Trophies" },
   ...(internalTournament.show
-    ? [{ to: "/internal-tournament", label: "Internal T7" }]
+    ? [
+        { to: "/internal-tournament", label: "Internal T7" },
+        { to: "/live", label: "Live" },
+      ]
     : []),
   { to: "/teams", label: "Teams" },
   { to: "/players", label: "Players" },

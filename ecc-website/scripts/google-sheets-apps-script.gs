@@ -11,13 +11,16 @@
  */
 
 /** Bump this when the script changes, to confirm the new version is live. */
-const SCRIPT_VERSION = 8;
+const SCRIPT_VERSION = 9;
 
 /** Tab where the organisers' captain draw result is stored (organiser key only). */
 const DRAW_TAB = "Captain Draw";
 
 /** Tab where the player auction is backed up after every sale (organiser key only). */
 const AUCTION_TAB = "Auction Results";
+
+/** Tab where live match scores are stored (scorer or organiser key to write, public to read). */
+const MATCH_TAB = "Live Matches";
 
 /**
  * The only tabs this script will write to or read from, and the only fields
@@ -49,8 +52,10 @@ function doPost(e) {
   if (!lock.tryLock(15000)) return json({ ok: false, error: "busy" });
   try {
     const raw = (e && e.postData && e.postData.contents) || "";
-    if (raw.length > 10000) return json({ ok: false, error: "invalid" });
+    if (raw.length > 60000) return json({ ok: false, error: "invalid" });
     const data = JSON.parse(raw || "{}");
+    // Only live match saves may be large; everything else stays small.
+    if (raw.length > 10000 && data.action !== "saveMatch") return json({ ok: false, error: "invalid" });
 
     // Spam trap: real visitors never fill the hidden "website" field.
     if (data.website) return json({ ok: true });
@@ -73,6 +78,16 @@ function doPost(e) {
       tab.getRange(1, 1, 1, 3).setFontWeight("bold");
       tab.setFrozenRows(1);
       return json({ ok: true, saved: captains.length });
+    }
+
+    // Scorers save the match after every ball.
+    if (data.action === "saveMatch") {
+      if (!isScorer(data.key)) return json({ ok: false, error: "wrong-key" });
+      return json(saveMatch(data.match));
+    }
+    if (data.action === "deleteMatch") {
+      if (!isScorer(data.key)) return json({ ok: false, error: "wrong-key" });
+      return json(deleteMatch(String(data.id || "")));
     }
 
     // Organisers back up the auction after every sale.
@@ -181,6 +196,17 @@ function tooManyRecently() {
  *   phone numbers, roles, captain choices and notes are never returned.
  */
 function doGet(e) {
+  const p = (e && e.parameter) || {};
+  if (p.checkScorer) {
+    if (isScorer(p.checkScorer)) return json({ ok: true });
+    Utilities.sleep(1500); // slow down key guessing
+    return json({ ok: false, error: "wrong-key" });
+  }
+  if (p.matches) return json({ ok: true, matches: listMatches() });
+  if (p.match) {
+    const m = readMatch(String(p.match));
+    return json(m ? { ok: true, match: m } : { ok: false, error: "not-found" });
+  }
   const sheetName = e && e.parameter && e.parameter.sheet;
   if (!sheetName) {
     return json({ ok: true, version: SCRIPT_VERSION, message: "ECC form endpoint is running." });
@@ -290,14 +316,162 @@ function readDrawnCaptains(ss) {
   return captains.length ? { at: at, captains: captains } : null;
 }
 
+/* ------------------------------------------------------------------ */
+/* Live scoring                                                         */
+/* ------------------------------------------------------------------ */
+
+const MATCH_ID = /^[a-z0-9-]{6,40}$/;
+
+function matchTab(create) {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  let tab = ss.getSheetByName(MATCH_TAB);
+  if (!tab && create) {
+    tab = ss.insertSheet(MATCH_TAB);
+    tab.getRange(1, 1, 1, 7).setValues([["Match id", "Updated", "Status", "Match", "Rev", "Summary", "Data"]]).setFontWeight("bold");
+    tab.setFrozenRows(1);
+  }
+  return tab;
+}
+
+function matchRow(tab, id) {
+  if (!tab || tab.getLastRow() < 2) return -1;
+  const ids = tab.getRange(2, 1, tab.getLastRow() - 1, 1).getValues();
+  for (let i = 0; i < ids.length; i++) if (String(ids[i][0]) === id) return i + 2;
+  return -1;
+}
+
+/** Keeps only what a match needs and checks its size. Null if invalid. */
+function cleanMatch(m) {
+  if (!m || typeof m !== "object" || !MATCH_ID.test(String(m.id || ""))) return null;
+  const text = function (v, max) { return String(v == null ? "" : v).replace(/[<>]/g, "").replace(/\s+/g, " ").trim().slice(0, max); };
+  const teams = (Array.isArray(m.teams) ? m.teams : []).slice(0, 2).map(function (t) {
+    return {
+      name: text(t && t.name, 40),
+      players: (Array.isArray(t && t.players) ? t.players : []).slice(0, 15).map(function (n) { return text(n, 40); }),
+    };
+  });
+  if (teams.length !== 2) return null;
+  const events = (Array.isArray(m.events) ? m.events : []).slice(0, 800).map(function (ev) {
+    return (Array.isArray(ev) ? ev : []).slice(0, 7).map(function (x) {
+      return typeof x === "number" ? Math.max(-1, Math.min(99, Math.round(x))) : text(x, 3);
+    });
+  });
+  const out = {
+    id: String(m.id),
+    rev: Math.max(0, Math.floor(Number(m.rev) || 0)),
+    ground: text(m.ground, 40),
+    overs: Math.max(1, Math.min(50, Math.floor(Number(m.overs) || 7))),
+    maxBowlerOvers: Math.max(0, Math.min(50, Math.floor(Number(m.maxBowlerOvers) || 0))),
+    battingFirst: m.battingFirst === 1 ? 1 : 0,
+    toss: m.toss ? { winner: m.toss.winner === 1 ? 1 : 0, choice: m.toss.choice === "bowl" ? "bowl" : "bat" } : null,
+    teams: teams,
+    events: events,
+    createdAt: text(m.createdAt, 40),
+  };
+  return out;
+}
+
+function cleanSummary(s) {
+  const text = function (v, max) { return String(v == null ? "" : v).replace(/[<>]/g, "").slice(0, max); };
+  s = s || {};
+  return {
+    title: text(s.title, 90),
+    ground: text(s.ground, 40),
+    status: ["setup", "live", "break", "done"].indexOf(s.status) >= 0 ? s.status : "setup",
+    note: text(s.note, 120),
+    lines: (Array.isArray(s.lines) ? s.lines : []).slice(0, 2).map(function (l) {
+      return { team: text(l && l.team, 40), score: text(l && l.score, 10), overs: text(l && l.overs, 8) };
+    }),
+  };
+}
+
+function saveMatch(input) {
+  const m = cleanMatch(input);
+  if (!m) return { ok: false, error: "invalid" };
+  const summary = cleanSummary(input && input.summary);
+  const data = JSON.stringify(m);
+  if (data.length > 45000) return { ok: false, error: "too-big" };
+  const tab = matchTab(true);
+  let row = matchRow(tab, m.id);
+  if (row > 0) {
+    const stored = Number(tab.getRange(row, 5).getValue()) || 0;
+    // An older phone must never overwrite newer scoring.
+    if (m.rev < stored) return { ok: false, error: "stale", rev: stored };
+  } else {
+    if (tab.getLastRow() > 300) return { ok: false, error: "full" };
+    row = tab.getLastRow() + 1;
+  }
+  const values = [[m.id, new Date().toISOString(), summary.status, summary.title, m.rev, JSON.stringify(summary), data]];
+  tab.getRange(row, 1, 1, 7).setNumberFormat("@").setValues(values);
+  const cache = CacheService.getScriptCache();
+  cache.put("match:" + m.id, data, 21600);
+  cache.remove("matches");
+  return { ok: true, rev: m.rev };
+}
+
+function deleteMatch(id) {
+  if (!MATCH_ID.test(id)) return { ok: false, error: "invalid" };
+  const tab = matchTab(false);
+  const row = matchRow(tab, id);
+  if (row > 0) tab.deleteRow(row);
+  const cache = CacheService.getScriptCache();
+  cache.remove("match:" + id);
+  cache.remove("matches");
+  return { ok: true };
+}
+
+function readMatch(id) {
+  if (!MATCH_ID.test(id)) return null;
+  const cache = CacheService.getScriptCache();
+  const hit = cache.get("match:" + id);
+  if (hit) return JSON.parse(hit);
+  const tab = matchTab(false);
+  const row = matchRow(tab, id);
+  if (row < 0) return null;
+  const data = String(tab.getRange(row, 7).getValue());
+  cache.put("match:" + id, data, 21600);
+  return JSON.parse(data);
+}
+
+/** Most recent matches first: [{ id, updated, rev, title, ground, status, note, lines }]. */
+function listMatches() {
+  const cache = CacheService.getScriptCache();
+  const hit = cache.get("matches");
+  if (hit) return JSON.parse(hit);
+  const tab = matchTab(false);
+  if (!tab || tab.getLastRow() < 2) return [];
+  const rows = tab.getRange(2, 1, tab.getLastRow() - 1, 6).getValues();
+  const list = rows
+    .filter(function (r) { return MATCH_ID.test(String(r[0])); })
+    .map(function (r) {
+      let s = {};
+      try { s = JSON.parse(String(r[5])); } catch (err) { s = {}; }
+      const updated = r[1] instanceof Date ? r[1].toISOString() : String(r[1]);
+      return Object.assign(cleanSummary(s), { id: String(r[0]), updated: updated, rev: Number(r[4]) || 0 });
+    })
+    .sort(function (a, b) { return a.updated < b.updated ? 1 : -1; })
+    .slice(0, 30);
+  cache.put("matches", JSON.stringify(list), 300);
+  return list;
+}
+
+/** Scorers may use SCORER_KEY (Script Properties) or the organiser key. */
+function isScorer(key) {
+  if (isOrganiser(key)) return true;
+  return sameSecret(key, PropertiesService.getScriptProperties().getProperty("SCORER_KEY"));
+}
+
 /**
  * The organiser key lives in Project Settings → Script Properties as
  * ORGANISER_KEY, never in this file (which is public on GitHub).
  */
 function isOrganiser(key) {
-  if (!key) return false;
-  const secret = PropertiesService.getScriptProperties().getProperty("ORGANISER_KEY");
-  if (!secret || secret.length < 12) return false;
+  return sameSecret(key, PropertiesService.getScriptProperties().getProperty("ORGANISER_KEY"));
+}
+
+/** Constant-time comparison of a key with a stored secret (12+ characters). */
+function sameSecret(key, secret) {
+  if (!key || !secret || secret.length < 12) return false;
   const a = String(key);
   if (a.length !== secret.length) return false;
   let diff = 0;

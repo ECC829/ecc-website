@@ -31,6 +31,16 @@ export const pageMeta = {
     description: "Live player auction — 60-point purses, a 1:30 clock and every bid on the big screen.",
     image: img("auction"),
   },
+  "/live": {
+    title: "Live scores · ECC Internal T7",
+    description: "Ball-by-ball live scores and full scorecards from the ECC Internal T7 Tournament.",
+    image: img("live"),
+  },
+  "/score": {
+    title: "ECC Scorer",
+    description: "Scoring app for ECC Internal T7 match scorers.",
+    image: img("live"),
+  },
   "/achievements": {
     title: "ECC Achievements · Trophy cabinet",
     description: "Titles and finals from ECC sides across Central Ohio — see the trophy photos.",

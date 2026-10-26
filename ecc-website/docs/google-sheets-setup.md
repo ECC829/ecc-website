@@ -99,3 +99,11 @@ read other tabs in your Sheet. It also:
 
 To add a new form, add an entry to `FORMS`, save, and publish a new version
 (Deploy → Manage deployments → Edit → New version).
+
+## Live scoring (script version 9+)
+
+- Scorers use **/score** on their phones; everyone follows along at **/live**.
+- In Apps Script → Project Settings → Script Properties, add `SCORER_KEY`
+  (12+ characters). Give it to the match scorers. The organiser key also works.
+- Scores are stored in the **Live Matches** tab, one row per match. Delete a
+  row (or use ✕ on /score) to remove a test match.

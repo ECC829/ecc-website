@@ -25,6 +25,9 @@ export const internalTournament = {
   lateBidSeconds: 10,
   extensionSeconds: 30,
   minBid: 1,
+  // Live scoring (/score and /live)
+  scoringOvers: 7,
+  maxOversPerBowler: 2,
 };
 
 const t = internalTournament;
