@@ -13,9 +13,9 @@ export const internalTournament = {
   dateNote: "Final date to be confirmed",
   dateOptions: ["Sat Oct 31", "Sun Nov 1", "Either day"],
   format: "T7",
-  playersPerTeam: 7,
-  playersToBuy: 6,
-  captainPoints: 60,
+  playersPerTeam: 8,
+  playersToBuy: 7,
+  captainPoints: 70,
   auctionClock: "1 min 30 sec",
   lateBidWindow: "last 10 seconds",
   extension: "30 sec",
@@ -37,7 +37,7 @@ export const tournamentSteps = [
   },
   {
     title: "Teams are set",
-    text: `The number of teams depends on how many people sign up, with ${t.playersPerTeam} players per team. For example, 70 sign-ups means 10 teams of ${t.playersPerTeam}.`,
+    text: `The number of teams depends on how many people sign up, with ${t.playersPerTeam} players per team. For example, ${10 * t.playersPerTeam} sign-ups means 10 teams of ${t.playersPerTeam}.`,
   },
   {
     title: "Captains by lottery",
