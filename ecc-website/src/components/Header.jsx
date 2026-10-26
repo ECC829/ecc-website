@@ -61,7 +61,7 @@ export default function Header() {
       <a
         href="#main"
         onClick={(event) => {
-          // HashRouter owns the URL hash, so focus the main area directly.
+          // Focus the main area directly (the router owns navigation).
           event.preventDefault();
           const main = document.getElementById("main");
           main?.setAttribute("tabindex", "-1");
