@@ -12,6 +12,7 @@ import {
 import { digitCount, isEmail, mailtoLink, submitToSheet, useForm } from "../lib/form";
 import { googleSheetEndpoint } from "../data/forms";
 import { useSignupCounts } from "../lib/useSignupCounts";
+import { useSignupsOpen } from "../lib/useSignupsOpen";
 import { club } from "../data/club";
 import { roles } from "../data/players";
 import {
@@ -75,7 +76,7 @@ function TeamEstimator() {
   );
 }
 
-function LiveCount({ counts, loading }) {
+function LiveCount({ counts, loading, closed }) {
   if (!googleSheetEndpoint || (!counts && !loading)) return null;
   const show = (n) =>
     counts ? n : <span className="inline-block h-8 w-7 animate-pulse rounded bg-white/10 align-middle" />;
@@ -98,7 +99,7 @@ function LiveCount({ counts, loading }) {
           <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-gold-400" />
         </span>
         <span className="font-mono text-[11px] uppercase tracking-widest text-gold-300">
-          {loading && counts ? "Updating…" : "Live sign-ups"}
+          {loading && counts ? "Updating…" : closed ? "Final sign-ups" : "Live sign-ups"}
         </span>
       </div>
       <dl className="mt-4 grid grid-cols-3 gap-4">
@@ -539,8 +540,35 @@ function SignupForm({ onSignedUp, onSaved }) {
   );
 }
 
+function SignupsClosed({ count }) {
+  return (
+    <div className="text-center sm:text-left">
+      <p className="eyebrow">Sign-ups closed</p>
+      <h2 className="headline mt-3 text-3xl">The pool is set</h2>
+      <p className="mt-4 text-[15px] leading-7 text-slate-400">
+        Sign-ups closed at 9:00 PM.
+        {typeof count === "number" && count > 0 && (
+          <>
+            {" "}
+            <strong className="text-white">{count} players</strong> are in the pool.
+          </>
+        )}{" "}
+        Captains will be drawn and squads picked in the player auction.
+      </p>
+      <p className="mt-4 text-sm text-slate-500">
+        Missed it? Contact the organisers at{" "}
+        <a className="text-gold-300 underline" href={`mailto:${club.email}`}>
+          {club.email}
+        </a>
+        .
+      </p>
+    </div>
+  );
+}
+
 export default function InternalTournamentPage() {
   const { counts, loading, addOne, refresh } = useSignupCounts(`${t.shortName} ${t.year}`);
+  const open = useSignupsOpen();
 
   return (
     <>
@@ -559,11 +587,12 @@ export default function InternalTournamentPage() {
                 {t.name}
               </h1>
               <p className="mt-5 max-w-xl animate-fade-up text-base leading-7 text-slate-400">
-                A one-day, club-only T7 tournament. Sign up, nominate yourself for captain,
-                and get picked in the player auction.
+                {open
+                  ? "A one-day, club-only T7 tournament. Sign up, nominate yourself for captain, and get picked in the player auction."
+                  : "A one-day, club-only T7 tournament. Sign-ups are closed — next up, the captain draw and the player auction."}
               </p>
               <div className="mt-6 max-w-xl">
-                <LiveCount counts={counts} loading={loading} />
+                <LiveCount counts={counts} loading={loading} closed={!open} />
               </div>
             </div>
 
@@ -572,7 +601,16 @@ export default function InternalTournamentPage() {
               id="signup"
               className="h-fit rounded-2xl border border-gold-400/20 bg-ink-950 p-6 shadow-2xl shadow-black/40 sm:p-8 lg:col-start-2 lg:row-span-2 lg:row-start-1"
             >
-              <SignupForm onSignedUp={addOne} onSaved={refresh} />
+              {open ? (
+                <>
+                  <p className="mb-5 rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-center text-sm font-semibold text-red-200">
+                    Sign-ups close at {t.signupDeadlineLabel}
+                  </p>
+                  <SignupForm onSignedUp={addOne} onSaved={refresh} />
+                </>
+              ) : (
+                <SignupsClosed count={counts?.count} />
+              )}
             </div>
 
             {/* Key facts */}
