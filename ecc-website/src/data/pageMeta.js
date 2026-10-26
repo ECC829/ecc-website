@@ -28,7 +28,7 @@ export const pageMeta = {
   },
   "/auction": {
     title: "The Player Auction · ECC Internal T7",
-    description: "Live player auction — 60-point purses, a 1:30 clock and every bid on the big screen.",
+    description: "Live player auction — 70-point purses, a 1:30 clock and every bid on the big screen.",
     image: img("auction"),
   },
   "/achievements": {
