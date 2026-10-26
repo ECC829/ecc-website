@@ -21,6 +21,16 @@ export const pageMeta = {
     description: "Oct 31 / Nov 1 — sign up, nominate yourself for captain and get picked in the player auction.",
     image: img("internal-tournament"),
   },
+  "/captain-draw": {
+    title: "The Captain Draw · ECC Internal T7",
+    description: "Watch the captains for the ECC Internal T7 Tournament drawn live — one per team.",
+    image: img("captain-draw"),
+  },
+  "/auction": {
+    title: "The Player Auction · ECC Internal T7",
+    description: "Live player auction — 60-point purses, a 1:30 clock and every bid on the big screen.",
+    image: img("auction"),
+  },
   "/achievements": {
     title: "ECC Achievements · Trophy cabinet",
     description: "Titles and finals from ECC sides across Central Ohio — see the trophy photos.",
