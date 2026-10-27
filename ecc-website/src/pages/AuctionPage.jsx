@@ -7,9 +7,11 @@ import OrganiserLoad from "../components/OrganiserLoad";
 import { googleSheetEndpoint } from "../data/forms";
 import { fetchOrganiserData, saveAuctionBackup } from "../lib/form";
 import { readKey, storeKey } from "../lib/organiserKey";
+import { buildLotOrder, matchListed } from "../lib/lotOrder";
 
 const SHEET = `${t.shortName} ${t.year}`;
 const STORAGE_KEY = `ecc-auction:${SHEET}`;
+const ORDER_KEY = `ecc-auction-order:${SHEET}`;
 const DRAW_KEY = `ecc-captain-draw:${SHEET}`;
 
 /* ------------------------------------------------------------------ */
@@ -81,6 +83,15 @@ export default function AuctionPage() {
   const [pool, setPool] = useState([]);
   // Players who went unsold at least once. They go back into the pool, marked.
   const [unsold, setUnsold] = useState([]);
+  // Planned lot order (empty = fully random). Only kept on this device.
+  const [queue, setQueue] = useState([]);
+  const [spreadText, setSpreadText] = useState(() => {
+    try {
+      return localStorage.getItem(ORDER_KEY) || "";
+    } catch {
+      return "";
+    }
+  });
   const [lot, setLot] = useState(null);
   const [history, setHistory] = useState([]); // undo stack (snapshots)
   const [canResume, setCanResume] = useState(() => Boolean(saved?.started && saved?.teams?.length));
@@ -129,13 +140,13 @@ export default function AuctionPage() {
         STORAGE_KEY,
         JSON.stringify({
           captainsText, playersText, budget, squadSize,
-          started, teams, pool, unsold, lot, history: history.slice(-30), roles,
+          started, teams, pool, unsold, lot, history: history.slice(-30), roles, queue,
         })
       );
     } catch {
       /* storage unavailable */
     }
-  }, [captainsText, playersText, budget, squadSize, started, teams, pool, unsold, lot, history, canResume, roles]);
+  }, [captainsText, playersText, budget, squadSize, started, teams, pool, unsold, lot, history, canResume, roles, queue]);
 
   /* --------------------------- derived ---------------------------- */
   const leading = lot?.bids.length ? lot.bids[lot.bids.length - 1] : null;
@@ -246,6 +257,7 @@ export default function AuctionPage() {
     setCanResume(false);
     setTeams(captainNames.map((name) => ({ name, squad: [] })));
     setPool(playerNames);
+    setQueue(buildLotOrder(playerNames, parseNames(spreadText), randomIndex));
     setUnsold([]);
     setLot(null);
     setHistory([]);
@@ -256,9 +268,20 @@ export default function AuctionPage() {
   const nextPlayer = () => {
     // Players not yet auctioned come first; unsold players get another go
     // once everyone else has been up.
+    // Follow the planned order if there is one; otherwise pick at random.
+    let rest = queue;
+    let player = null;
+    while (rest.length && !player) {
+      const [head, ...tail] = rest;
+      rest = tail;
+      if (freshPool.includes(head)) player = head;
+    }
     const source = freshPool.length ? freshPool : pool;
-    if (!source.length) return;
-    const player = source[randomIndex(source.length)];
+    if (!player) {
+      if (!source.length) return;
+      player = source[randomIndex(source.length)];
+    }
+    setQueue(rest);
     setBanner(null);
     setPool((p) => p.filter((x) => x !== player));
     setLot(blankLot(player));
@@ -337,6 +360,7 @@ export default function AuctionPage() {
     setStarted(false);
     setTeams([]);
     setPool([]);
+    setQueue([]);
     setUnsold([]);
     setLot(null);
     setHistory([]);
@@ -373,6 +397,7 @@ export default function AuctionPage() {
     setLot(saved.lot ? { ...saved.lot, status: saved.lot.status === "running" ? "paused" : saved.lot.status, endsAt: null, remainingMs: saved.lot.status === "running" ? Math.max(0, (saved.lot.endsAt ?? 0) - Date.now()) : saved.lot.remainingMs } : null);
     setHistory(saved.history ?? []);
     setRoles(saved.roles ?? {});
+    setQueue(Array.isArray(saved.queue) ? saved.queue : []);
     setStarted(Boolean(saved.started));
     setCanResume(false);
   };
@@ -548,7 +573,7 @@ export default function AuctionPage() {
             ))}
           </div>
 
-          <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_1fr_1.2fr]">
+          <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_1fr_1.2fr] lg:items-start">
             {[
               { label: "Points per captain", value: budget, set: setBudget, min: 1 },
               { label: "Players to buy", value: squadSize, set: setSquadSize, min: 1 },
@@ -584,6 +609,15 @@ export default function AuctionPage() {
               <div className="flex justify-center gap-4 text-xs uppercase tracking-widest">
                 <Link to="/captain-draw" className="text-[#f6edd3]/50 hover:text-[#e8b234]">← Captain draw</Link>
               </div>
+              <LotOrderPanel text={spreadText} onSave={(v) => {
+                setSpreadText(v);
+                try {
+                  if (v.trim()) localStorage.setItem(ORDER_KEY, v);
+                  else localStorage.removeItem(ORDER_KEY);
+                } catch {
+                  /* storage unavailable */
+                }
+              }} players={playerNames} />
             </div>
           </div>
         </Container>
@@ -957,5 +991,70 @@ export default function AuctionPage() {
         )}
       </Container>
     </section>
+  );
+}
+
+/* Organiser-only lot order. Collapsed it shows just a count, never names. */
+function LotOrderPanel({ text, onSave, players }) {
+  const [open, setOpen] = useState(false);
+  const [draft, setDraft] = useState(text);
+  const saved = parseNames(text);
+  const names = parseNames(draft);
+  const { missing } = matchListed(players, names);
+  if (!open) {
+    return (
+      <button
+        type="button"
+        onClick={() => {
+          setDraft(text);
+          setOpen(true);
+        }}
+        className="mx-auto text-[10px] uppercase tracking-widest text-[#f6edd3]/25 hover:text-[#f6edd3]/60"
+      >
+        Lot order{saved.length ? ` · ${saved.length} saved` : ""}
+      </button>
+    );
+  }
+  return (
+    <div className="rounded-xl border border-[#f6edd3]/15 bg-black/40 p-3 text-left">
+      <p className="text-xs text-[#f6edd3]/70">One name per line, spelled as in the player pool.</p>
+      <textarea
+        value={draft}
+        onChange={(e) => setDraft(e.target.value)}
+        rows={6}
+        autoComplete="off"
+        spellCheck={false}
+        className="mt-2 w-full rounded-lg border border-[#f6edd3]/15 bg-black/50 p-2 font-mono text-xs text-[#f6edd3] outline-none focus:border-[#e8b234]"
+      />
+      {names.length > 0 && players.length > 0 && (
+        <p className={`mt-1 text-[11px] ${missing.length ? "text-[#ff8a9a]" : "text-[#f6edd3]/55"}`}>
+          {names.length - missing.length} of {names.length} found in the pool
+          {missing.length ? ` — not found: ${missing.join(", ")}` : ""}
+        </p>
+      )}
+      <div className="mt-2 flex gap-2">
+        <button
+          type="button"
+          onClick={() => {
+            onSave(draft);
+            setOpen(false);
+          }}
+          className="rounded-full bg-[#e8b234] px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-[#14100a]"
+        >
+          Save &amp; hide
+        </button>
+        <button
+          type="button"
+          onClick={() => {
+            onSave("");
+            setDraft("");
+            setOpen(false);
+          }}
+          className="rounded-full border border-[#f6edd3]/20 px-4 py-1.5 text-xs uppercase tracking-widest text-[#f6edd3]/70"
+        >
+          Clear
+        </button>
+      </div>
+    </div>
   );
 }
