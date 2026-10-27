@@ -996,11 +996,14 @@ export default function AuctionPage() {
 
 /* Organiser-only lot order. Collapsed it shows just a count, never names. */
 function LotOrderPanel({ text, onSave, players }) {
+  // Only on a device where the organiser key is saved (the auction laptop).
+  const allowed = Boolean(readKey());
   const [open, setOpen] = useState(false);
   const [draft, setDraft] = useState(text);
   const saved = parseNames(text);
   const names = parseNames(draft);
   const { missing } = matchListed(players, names);
+  if (!allowed && !text) return null;
   if (!open) {
     return (
       <button
