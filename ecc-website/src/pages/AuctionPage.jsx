@@ -7,7 +7,7 @@ import OrganiserLoad from "../components/OrganiserLoad";
 import { googleSheetEndpoint } from "../data/forms";
 import { fetchOrganiserData, saveAuctionBackup } from "../lib/form";
 import { readKey, storeKey } from "../lib/organiserKey";
-import { buildLotOrder, matchListed } from "../lib/lotOrder";
+import { buildLotOrder, resolveListed } from "../lib/lotOrder";
 
 const SHEET = `${t.shortName} ${t.year}`;
 const STORAGE_KEY = `ecc-auction:${SHEET}`;
@@ -1002,7 +1002,8 @@ function LotOrderPanel({ text, onSave, players }) {
   const [draft, setDraft] = useState(text);
   const saved = parseNames(text);
   const names = parseNames(draft);
-  const { missing } = matchListed(players, names);
+  const { matched, missing, ambiguous } = resolveListed(players, names);
+  const fuzzy = matched.filter((m) => m.typed.trim().toLowerCase() !== m.player.toLowerCase());
   if (!allowed && !text) return null;
   if (!open) {
     return (
@@ -1030,10 +1031,23 @@ function LotOrderPanel({ text, onSave, players }) {
         className="mt-2 w-full rounded-lg border border-[#f6edd3]/15 bg-black/50 p-2 font-mono text-xs text-[#f6edd3] outline-none focus:border-[#e8b234]"
       />
       {names.length > 0 && players.length > 0 && (
-        <p className={`mt-1 text-[11px] ${missing.length ? "text-[#ff8a9a]" : "text-[#f6edd3]/55"}`}>
-          {names.length - missing.length} of {names.length} found in the pool
-          {missing.length ? ` — not found: ${missing.join(", ")}` : ""}
-        </p>
+        <div className="mt-1 space-y-1 text-[11px]">
+          <p className={missing.length || ambiguous.length ? "text-[#ff8a9a]" : "text-[#9be3b0]"}>
+            {matched.length} of {names.length} matched
+          </p>
+          {fuzzy.length > 0 && (
+            <p className="text-[#f6edd3]/60">
+              Matched as: {fuzzy.map((m) => `${m.typed} → ${m.player}`).join(" · ")}
+            </p>
+          )}
+          {ambiguous.length > 0 && (
+            <p className="text-[#ff8a9a]">
+              More than one match — type more of the name:{" "}
+              {ambiguous.map((a) => `${a.typed} (${a.options.join(" / ")})`).join(" · ")}
+            </p>
+          )}
+          {missing.length > 0 && <p className="text-[#ff8a9a]">Not in the pool: {missing.join(", ")}</p>}
+        </div>
       )}
       <div className="mt-2 flex gap-2">
         <button

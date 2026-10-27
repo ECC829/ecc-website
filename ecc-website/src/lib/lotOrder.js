@@ -12,7 +12,64 @@
 const SET_BOUNDS = [20, 40, 60];
 const WEIGHTS = [2, 3, 3, 3];
 
-const normalise = (name) => String(name).toLowerCase().replace(/\s+/g, " ").trim();
+// Lower-case, no dots/commas, no invisible characters (WhatsApp and
+// spreadsheets often add them when copying), single spaces.
+const normalise = (name) =>
+  String(name)
+    .normalize("NFKC")
+    .replace(/[\u200B-\u200F\u202A-\u202E\u2060-\u2064\uFEFF]/g, "")
+    .toLowerCase()
+    .replace(/[.,;:'"()\-_]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+
+const words = (name) => normalise(name).split(" ").filter(Boolean);
+
+/**
+ * Same person, allowing short forms: "Teja" ~ "Teja Naidu",
+ * "Kishore Y" ~ "Kishore Yadav", "Bala Jayapathi" ~ "Bala Sai Bharath Raju Jayapathi".
+ * The first name must match; every other word typed must start a word of the
+ * pool name (in order).
+ */
+function looselySame(typed, pool) {
+  const a = words(typed);
+  const b = words(pool);
+  if (!a.length || !b.length || a[0] !== b[0]) return false;
+  let j = 1;
+  for (let i = 1; i < a.length; i++) {
+    while (j < b.length && !b[j].startsWith(a[i])) j++;
+    if (j >= b.length) return false;
+    j++;
+  }
+  return true;
+}
+
+/**
+ * Match each typed name to one player in the pool.
+ * Exact matches win; otherwise a short form must point to exactly one player.
+ * Returns { matched: [{ typed, player }], missing: [typed], ambiguous: [{ typed, options }] }.
+ */
+export function resolveListed(players, typedNames) {
+  const matched = [];
+  const missing = [];
+  const ambiguous = [];
+  const used = new Set();
+  typedNames.forEach((typed) => {
+    const exact = players.find((p) => normalise(p) === normalise(typed));
+    if (exact) {
+      if (!used.has(exact)) matched.push({ typed, player: exact });
+      used.add(exact);
+      return;
+    }
+    const options = players.filter((p) => looselySame(typed, p));
+    if (options.length === 1) {
+      if (!used.has(options[0])) matched.push({ typed, player: options[0] });
+      used.add(options[0]);
+    } else if (options.length > 1) ambiguous.push({ typed, options });
+    else missing.push(typed);
+  });
+  return { matched, missing, ambiguous };
+}
 
 function shuffle(list, randomIndex) {
   const a = [...list];
@@ -81,10 +138,10 @@ function pickPositions(start, end, k, taken, randomIndex) {
  * is in the pool — in which case the board just picks at random.
  */
 export function buildLotOrder(players, spreadNames, randomIndex) {
-  const wanted = new Set(spreadNames.map(normalise));
-  const listed = shuffle(players.filter((p) => wanted.has(normalise(p))), randomIndex);
+  const wanted = new Set(resolveListed(players, spreadNames).matched.map((m) => m.player));
+  const listed = shuffle(players.filter((p) => wanted.has(p)), randomIndex);
   if (!listed.length) return [];
-  const others = shuffle(players.filter((p) => !wanted.has(normalise(p))), randomIndex);
+  const others = shuffle(players.filter((p) => !wanted.has(p)), randomIndex);
 
   const n = players.length;
   const bounds = [0, ...SET_BOUNDS.filter((b) => b < n), n];
@@ -106,13 +163,4 @@ export function buildLotOrder(players, spreadNames, randomIndex) {
   let o = 0;
   for (let p = 0; p < n; p++) if (order[p] === null) order[p] = others[o++];
   return order;
-}
-
-/** Which listed names match a player in the pool, and which don't. */
-export function matchListed(players, spreadNames) {
-  const pool = new Set(players.map(normalise));
-  const found = [];
-  const missing = [];
-  spreadNames.forEach((name) => (pool.has(normalise(name)) ? found : missing).push(name));
-  return { found, missing };
 }
