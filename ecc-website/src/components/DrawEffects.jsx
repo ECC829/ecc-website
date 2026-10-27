@@ -47,19 +47,27 @@ export function SplitFlap({ text, onSettled, size = "lg" }) {
   }, [target]);
 
   const words = (target ? shown : "").split(" ");
-  const tile =
-    size === "lg"
-      ? "h-[clamp(2.6rem,7vw,5.5rem)] w-[clamp(1.9rem,5vw,4rem)] text-[clamp(1.7rem,4.6vw,3.8rem)]"
-      : "h-8 w-6 text-lg";
+  // Large tiles shrink to fit the longest word in the available width, so long
+  // names like "RADHAKRISHNAN" never spill out of the board.
+  const longest = Math.max(1, ...target.split(" ").map((w) => w.length));
+  const gap = 4; // px between tiles
+  const width = `min(4rem, 12vw, calc((100cqw - ${(longest - 1) * gap}px) / ${longest}))`;
+  const lgStyle = {
+    width,
+    height: `calc(${width} * 1.38)`,
+    fontSize: `calc(${width} * 0.95)`,
+  };
+  const tile = size === "lg" ? "" : "h-8 w-6 text-lg";
 
-  return (
+  const tiles = (
     <span className="inline-flex flex-wrap justify-center gap-x-[clamp(0.6rem,2vw,1.5rem)] gap-y-3" aria-label={text}>
       {words.map((word, w) => (
-        <span key={w} className="inline-flex gap-[3px] sm:gap-1" aria-hidden="true">
+        <span key={w} className="inline-flex" style={{ gap }} aria-hidden="true">
           {word.split("").map((ch, i) => (
             <span
               key={i}
-              className={`relative inline-flex items-center justify-center overflow-hidden rounded-[6px] bg-[#141414] font-display font-bold leading-none text-[#f6edd3] shadow-[inset_0_-2px_0_rgba(0,0,0,0.6),0_2px_6px_rgba(0,0,0,0.5)] ${tile}`}
+              style={size === "lg" ? lgStyle : undefined}
+              className={`relative inline-flex shrink-0 items-center justify-center overflow-hidden rounded-[6px] bg-[#141414] font-display font-bold leading-none text-[#f6edd3] shadow-[inset_0_-2px_0_rgba(0,0,0,0.6),0_2px_6px_rgba(0,0,0,0.5)] ${tile}`}
             >
               {ch}
               <span className="pointer-events-none absolute inset-x-0 top-1/2 h-px bg-black/70" />
@@ -67,6 +75,13 @@ export function SplitFlap({ text, onSettled, size = "lg" }) {
           ))}
         </span>
       ))}
+    </span>
+  );
+
+  if (size !== "lg") return tiles;
+  return (
+    <span className="block w-full" style={{ containerType: "inline-size" }}>
+      {tiles}
     </span>
   );
 }

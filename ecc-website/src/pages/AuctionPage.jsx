@@ -708,10 +708,10 @@ export default function AuctionPage() {
               )}
             </div>
           ) : (
-            <div className="grid items-center gap-6 lg:grid-cols-[1.4fr_1fr]">
-              <div className="text-center lg:text-left">
+            <div className="grid items-center gap-6 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
+              <div className="min-w-0 text-center lg:text-left">
                 <p className="font-mono text-[11px] uppercase tracking-[0.35em] text-[#f6edd3]/60">Up for auction</p>
-                <div className="mt-4 flex justify-center lg:justify-start">
+                <div className="mt-4 w-full text-center lg:text-left">
                   <SplitFlap text={lot.player} />
                 </div>
                 {roles[lot.player.toLowerCase()] && (
@@ -849,7 +849,7 @@ export default function AuctionPage() {
                 <div className="flex items-start justify-between gap-2">
                   <div className="min-w-0">
                     <p className="font-mono text-[10px] uppercase tracking-widest text-[#f6edd3]/45">Team {i + 1}</p>
-                    <p className="truncate font-display text-xl font-bold uppercase tracking-wide text-[#f6edd3]">{tm.name}</p>
+                    <p className="break-words font-display text-lg font-bold uppercase leading-tight tracking-wide text-[#f6edd3]" title={tm.name}>{tm.name}</p>
                   </div>
                   <div className="text-right">
                     <p className="font-mono text-[9px] uppercase tracking-widest text-[#f6edd3]/55">Purse left</p>
