@@ -32,9 +32,9 @@ export const pageMeta = {
     image: img("auction"),
   },
   "/league": {
-    title: "Scores & stats · Easton Cricket League",
-    description: "Results, fixtures, points table and player stats for ECC's Easton Cricket League on CricClubs.",
-    image: img("tournaments"),
+    title: "SupremeFresh Presents Easton Premier League · ECC",
+    description: "Results, fixtures, points table and player stats for the SupremeFresh Presents Easton Premier League, live on CricClubs.",
+    image: img("league"),
   },
   "/achievements": {
     title: "ECC Achievements · Trophy cabinet",

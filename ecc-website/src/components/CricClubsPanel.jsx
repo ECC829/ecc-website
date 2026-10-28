@@ -13,14 +13,29 @@ export default function CricClubsPanel({ compact = false }) {
     <div className="space-y-6">
       {current && (
         <div className="relative overflow-hidden rounded-2xl border border-gold-400/25 bg-gradient-to-br from-gold-400/[0.10] via-ink-900 to-ink-900 p-6 sm:p-8">
+          {current.sponsor && (
+            <div className="mb-5 flex items-center gap-3 sm:absolute sm:right-8 sm:top-1/2 sm:mb-0 sm:-translate-y-1/2 sm:flex-col sm:gap-2">
+              <img
+                src={current.sponsor.logo}
+                alt={`${current.sponsor.name} logo`}
+                loading="lazy"
+                decoding="async"
+                className="h-20 w-20 object-contain drop-shadow-[0_6px_18px_rgba(232,178,52,0.25)] sm:h-36 sm:w-36"
+              />
+              <span className="font-mono text-[10px] uppercase tracking-widest text-slate-500 sm:text-center">
+                Presented by
+                <br className="hidden sm:block" /> Supreme Fresh
+              </span>
+            </div>
+          )}
           <p className="flex items-center gap-2 font-mono text-[11px] uppercase tracking-widest text-gold-300">
             <span className="h-2 w-2 animate-pulse rounded-full bg-gold-400" aria-hidden="true" />
             Current league
           </p>
-          <h3 className="mt-3 font-display text-3xl font-bold uppercase leading-tight tracking-wide text-white sm:text-4xl">
+          <h3 className="mt-3 font-display text-3xl sm:pr-48 font-bold uppercase leading-tight tracking-wide text-white sm:text-4xl">
             {current.name}
           </h3>
-          <div className="mt-6 flex flex-wrap gap-3">
+          <div className="mt-6 flex flex-wrap gap-3 sm:pr-48">
             <a {...ext} href={leagueUrl(current.id)} className="btn-primary group">
               League home <Arrow />
             </a>
