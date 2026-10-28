@@ -200,6 +200,7 @@ export const sponsors = [
   {
     name: "Supreme Fresh Halal Meat & Grocery",
     category: "Halal meat & grocery",
+    logo: "/sponsors/supreme-fresh.webp",
     accent: "#2ec4b6",
     locations: [
       { label: "Polaris", address: "8635 Sancus Blvd, Columbus, OH 43240" },
@@ -209,6 +210,8 @@ export const sponsors = [
   {
     name: "Luna Pizza Worthington",
     category: "Pizza restaurant",
+    logo: "/sponsors/luna-pizza.webp",
+    logoBg: "#eadfd1",
     accent: "#f97316",
     locations: [
       { label: "Polaris", address: "150 Hutchinson Ave, Columbus, OH 43235" },
