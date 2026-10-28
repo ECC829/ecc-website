@@ -17,8 +17,8 @@ export const pageMeta = {
     image: img("home"),
   },
   "/internal-tournament": {
-    title: "ECC Internal T7 Tournament · Sign up",
-    description: "Oct 31 / Nov 1 — sign up, nominate yourself for captain and get picked in the player auction.",
+    title: "ECC Internal T7 Tournament · Saturday, Oct 31",
+    description: "Saturday, Oct 31 — 10 teams of 8, picked in the player auction. See the squads.",
     image: img("internal-tournament"),
   },
   "/captain-draw": {

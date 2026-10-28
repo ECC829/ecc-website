@@ -617,7 +617,7 @@ export default function InternalTournamentPage() {
             <div className="lg:col-start-1 lg:row-start-2">
               <dl className="grid max-w-xl grid-cols-2 gap-3">
                 {[
-                  { value: "Oct 31", label: "Date", note: `or Sun Nov 1 · ${t.dateNote.toLowerCase()}` },
+                  { value: "Oct 31", label: "Date", note: "Saturday · confirmed" },
                   { value: t.format, label: "Format", note: "7 overs a side" },
                   {
                     value: t.playersPerTeam,

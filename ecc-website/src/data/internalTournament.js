@@ -9,8 +9,8 @@ export const internalTournament = {
   name: "ECC Internal T7 Tournament",
   shortName: "Internal Tournament",
   year: 2026,
-  dateLabel: "Sat Oct 31 or Sun Nov 1",
-  dateNote: "Final date to be confirmed",
+  dateLabel: "Saturday, Oct 31",
+  dateNote: "Confirmed",
   // Sign-ups close at this moment (Eastern time). The form switches off by itself.
   signupDeadline: "2026-10-26T21:00:00-04:00",
   signupDeadlineLabel: "9:00 PM tonight",
