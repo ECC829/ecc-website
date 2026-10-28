@@ -18,6 +18,20 @@ export default function SponsorGrid() {
             style={{ background: sponsor.accent }}
             aria-hidden="true"
           />
+          {sponsor.logo && (
+            <div
+              className="mb-6 flex h-44 items-center justify-center overflow-hidden rounded-xl"
+              style={{ background: sponsor.logoBg || "#ffffff" }}
+            >
+              <img
+                src={sponsor.logo}
+                alt={`${sponsor.name} logo`}
+                loading="lazy"
+                decoding="async"
+                className="h-full w-full object-contain"
+              />
+            </div>
+          )}
           <p
             className="font-mono text-[11px] uppercase tracking-widest"
             style={{ color: sponsor.accent }}
