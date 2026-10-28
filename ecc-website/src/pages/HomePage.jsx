@@ -16,6 +16,7 @@ import { captionOf, featuredAchievements, photoUrl } from "../data/achievements"
 import { internalTournament as it } from "../data/internalTournament";
 import { useSignupCounts } from "../lib/useSignupCounts";
 import { useSignupsOpen } from "../lib/useSignupsOpen";
+import CricClubsPanel from "../components/CricClubsPanel";
 
 function Hero() {
   return (
@@ -214,6 +215,25 @@ export default function HomePage() {
         </section>
       )}
       <Marquee />
+
+      {/* League on CricClubs */}
+      <Section className="border-b border-white/[0.07]">
+        <Container>
+          <SectionHeading
+            eyebrow="Easton Cricket League"
+            title="Scores & stats"
+            lead="Results, fixtures, the points table and player stats — live on CricClubs."
+            action={
+              <Link to="/league" className="text-sm font-semibold uppercase tracking-widest text-gold-300 hover:text-gold-200">
+                All league links →
+              </Link>
+            }
+          />
+          <div className="mt-8">
+            <CricClubsPanel compact />
+          </div>
+        </Container>
+      </Section>
 
       {/* Club at a glance */}
       <Section>
