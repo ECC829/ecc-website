@@ -18,7 +18,12 @@ export const cricclubs = {
     { label: "Player rankings", note: "Top performers", href: `${BASE}/playerRankings.do?${CLUB}` },
   ],
   leagues: [
-    { name: "SupremeFresh Presents Easton Premier League", id: 22, current: true },
+    {
+      name: "SupremeFresh Presents Easton Premier League",
+      id: 22,
+      current: true,
+      sponsor: { name: "Supreme Fresh Halal Meat & Grocery", logo: "/sponsors/supreme-fresh-badge.png" },
+    },
     { name: "ECC Premier League 2025", id: 19 },
     { name: "Easton BleedBlue T7 – 2025", id: 18 },
   ],
