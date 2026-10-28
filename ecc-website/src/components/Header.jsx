@@ -11,6 +11,7 @@ const navItems = [
   { to: "/", label: "Home", end: true, mobileOnly: true },
   { to: "/about", label: "About" },
   { to: "/tournaments", label: "Tournaments" },
+  { to: "/league", label: "League" },
   { to: "/achievements", label: "Trophies" },
   ...(internalTournament.show
     ? [{ to: "/internal-tournament", label: "Internal T7" }]

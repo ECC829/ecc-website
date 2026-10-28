@@ -3,6 +3,7 @@ import { Badge, Container, PageHeader, Section, StatTile } from "../components/u
 import { allEvents, cities, tournaments } from "../data/tournaments";
 import { teamByName } from "../data/teams";
 import { season, showSchedule } from "../data/club";
+import CricClubsPanel from "../components/CricClubsPanel";
 
 export default function TournamentsPage() {
   return (
@@ -18,6 +19,16 @@ export default function TournamentsPage() {
           <StatTile value={tournaments.length} label="Format groups" accent="#f97316" />
         </div>
       </PageHeader>
+
+      <Section className="border-b border-white/[0.07] !pb-12">
+        <Container>
+          <p className="eyebrow">Our own league</p>
+          <h2 className="headline mt-3 text-3xl sm:text-4xl">Easton Cricket League</h2>
+          <div className="mt-8">
+            <CricClubsPanel compact />
+          </div>
+        </Container>
+      </Section>
 
       <Section>
         <Container>

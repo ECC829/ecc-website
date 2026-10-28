@@ -31,6 +31,11 @@ export const pageMeta = {
     description: "Live player auction — 70-point purses, a 1:30 clock and every bid on the big screen.",
     image: img("auction"),
   },
+  "/league": {
+    title: "Scores & stats · Easton Cricket League",
+    description: "Results, fixtures, points table and player stats for ECC's Easton Cricket League on CricClubs.",
+    image: img("tournaments"),
+  },
   "/achievements": {
     title: "ECC Achievements · Trophy cabinet",
     description: "Titles and finals from ECC sides across Central Ohio — see the trophy photos.",
