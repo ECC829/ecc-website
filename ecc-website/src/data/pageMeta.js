@@ -48,7 +48,7 @@ export const pageMeta = {
   },
   "/tournaments": {
     title: "ECC Tournaments",
-    description: "T7, T15, T20 and T40 cricket across Columbus, Dublin, Dayton and Cincinnati.",
+    description: "T7, T15, T20 and T40 cricket across Central Ohio — plus our own SupremeFresh Presents Easton Premier League.",
     image: img("tournaments"),
   },
   "/players": {
