@@ -250,10 +250,15 @@ function Squads({ squads }) {
               >
                 <div className="h-2" style={{ background: colour }} aria-hidden="true" />
                 <div className="p-5">
-                  <div className="flex items-baseline justify-between border-b-2 border-[#1b1a14]/80 pb-2">
-                    <p className="font-display text-xl font-bold uppercase tracking-[0.15em]">Team {i + 1}</p>
-                    <p className="font-mono text-[11px] uppercase tracking-widest text-[#1b1a14]/55">
-                      {tm.players.length + 1} players
+                  <div className="border-b-2 border-[#1b1a14]/80 pb-2">
+                    <div className="flex items-baseline justify-between">
+                      <p className="font-mono text-[11px] uppercase tracking-widest text-[#1b1a14]/55">Team {i + 1}</p>
+                      <p className="font-mono text-[11px] uppercase tracking-widest text-[#1b1a14]/55">
+                        {tm.players.length + 1} players
+                      </p>
+                    </div>
+                    <p className="mt-1 font-display text-2xl font-bold uppercase leading-tight tracking-[0.06em]">
+                      {t.teamNames?.[i] || `Team ${i + 1}`}
                     </p>
                   </div>
                   <ol className="mt-2">

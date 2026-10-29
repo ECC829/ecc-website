@@ -28,6 +28,19 @@ export const internalTournament = {
   lateBidSeconds: 10,
   extensionSeconds: 30,
   minBid: 1,
+  // Team names, in captain-draw order (Team 1 = first captain drawn).
+  teamNames: [
+    "The Big Dogs",
+    "Jigar VIII",
+    "Team Carpediem",
+    "Easton Kings",
+    "Easton Eagles",
+    "Burful Boys",
+    "Torch Bearers",
+    "OGS",
+    "Royal M8",
+    "The Cheetahs",
+  ],
 };
 
 const t = internalTournament;
