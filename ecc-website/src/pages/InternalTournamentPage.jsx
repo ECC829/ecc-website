@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Container, Section, SectionHeading } from "../components/ui";
 import {
   Field,
@@ -289,6 +289,72 @@ function Squads({ squads }) {
         </div>
       </Container>
     </section>
+  );
+}
+
+function CaptainPosters() {
+  const [open, setOpen] = useState(null);
+  const names = t.teamNames ?? [];
+  useEffect(() => {
+    if (open === null) return undefined;
+    const onKey = (e) => {
+      if (e.key === "Escape") setOpen(null);
+      if (e.key === "ArrowRight") setOpen((i) => (i === null ? i : (i + 1) % names.length));
+      if (e.key === "ArrowLeft") setOpen((i) => (i === null ? i : (i - 1 + names.length) % names.length));
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [open, names.length]);
+
+  return (
+    <Section className="border-b border-white/[0.07]">
+      <Container>
+        <SectionHeading
+          eyebrow="Meet the captains"
+          title="Ten captains. Ten teams."
+          lead="Tap a poster to see it full size and save it."
+        />
+        <div className="mt-10 grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-5">
+          {names.map((name, i) => (
+            <button
+              key={name}
+              type="button"
+              onClick={() => setOpen(i)}
+              className="group overflow-hidden rounded-xl border border-white/10 bg-ink-900 text-left transition hover:-translate-y-1 hover:border-gold-300/60"
+              aria-label={`Open the ${name} poster`}
+            >
+              <img
+                src={`/posters/team-${i + 1}.jpg`}
+                alt={`Team ${i + 1}: ${name} captain poster`}
+                width="600"
+                height="600"
+                loading="lazy"
+                className="aspect-square w-full object-cover"
+              />
+            </button>
+          ))}
+        </div>
+      </Container>
+      {open !== null && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4"
+          role="dialog"
+          aria-modal="true"
+          aria-label={`${names[open]} poster`}
+          onClick={() => setOpen(null)}
+        >
+          <div className="flex max-h-full w-full max-w-[min(92vw,92vh)] flex-col gap-3" onClick={(e) => e.stopPropagation()}>
+            <img src={`/posters/team-${open + 1}.jpg`} alt={`Team ${open + 1}: ${names[open]} captain poster`} className="max-h-[80vh] w-full rounded-lg object-contain" />
+            <div className="flex items-center justify-between gap-3 text-sm font-semibold uppercase tracking-widest text-gold-200">
+              <button type="button" onClick={() => setOpen((open - 1 + names.length) % names.length)} className="px-3 py-2">← Prev</button>
+              <a href={`/posters/team-${open + 1}.jpg`} download={`ECC-T7-Team${open + 1}-${names[open].replace(/\s+/g, "")}.jpg`} className="rounded-full bg-gold-300 px-4 py-2 text-ink-950">Download</a>
+              <button type="button" onClick={() => setOpen(null)} className="px-3 py-2">Close</button>
+              <button type="button" onClick={() => setOpen((open + 1) % names.length)} className="px-3 py-2">Next →</button>
+            </div>
+          </div>
+        </div>
+      )}
+    </Section>
   );
 }
 
@@ -663,6 +729,8 @@ export default function InternalTournamentPage() {
       </header>
 
       <Squads squads={counts?.squads} />
+
+      <CaptainPosters />
 
       <PlayerPool players={counts?.players ?? null} loading={loading} />
 
