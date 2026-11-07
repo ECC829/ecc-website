@@ -4,6 +4,8 @@
  */
 export const internalTournament = {
   show: true,
+  /** The tournament is over: sign-up and auction pages show a "completed" state. */
+  completed: true,
   /** Show the "Who's signed up" list (first name + last initial only). */
   showPlayerNames: true,
   name: "ECC Internal T7 Tournament",

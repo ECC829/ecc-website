@@ -18,7 +18,7 @@ const columns = [
     title: "Get Involved",
     links: [
       ...(internalTournament.show
-        ? [{ label: "Internal Tournament Sign-up", to: "/internal-tournament" }]
+        ? [{ label: internalTournament.completed ? "Internal Tournament" : "Internal Tournament Sign-up", to: "/internal-tournament" }]
         : []),
       { label: "Player Registration", to: "/register" },
       { label: "Sponsor ECC", to: "/sponsor" },

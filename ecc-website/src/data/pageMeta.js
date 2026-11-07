@@ -18,7 +18,7 @@ export const pageMeta = {
   },
   "/internal-tournament": {
     title: "ECC Internal T7 Tournament · Saturday, Oct 31",
-    description: "Saturday, Oct 31 — 10 teams of 8, picked in the player auction. See the squads.",
+    description: "Played Saturday, Oct 31 — 10 teams of 8, picked in the player auction. See the squads.",
     image: img("internal-tournament"),
   },
   "/captain-draw": {
@@ -28,7 +28,7 @@ export const pageMeta = {
   },
   "/auction": {
     title: "The Player Auction · ECC Internal T7",
-    description: "Live player auction — 70-point purses, a 1:30 clock and every bid on the big screen.",
+    description: "The ECC Internal T7 player auction is complete. See the squads.",
     image: img("auction"),
   },
   "/league": {
