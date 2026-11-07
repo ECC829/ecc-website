@@ -194,22 +194,24 @@ export default function HomePage() {
           <Container className="flex flex-col gap-4 py-6 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <p className="font-mono text-[11px] uppercase tracking-widest text-gold-300">
-                Club event · {it.dateLabel}
+                {it.completed ? "Completed" : "Club event"} · {it.dateLabel}
               </p>
               <p className="mt-1 font-display text-2xl font-bold uppercase tracking-wide text-white">
-                {it.name} — {signupsOpen ? `sign-ups close ${it.signupDeadlineLabel}` : "sign-ups closed"}
+                {it.name} — {it.completed ? "completed" : signupsOpen ? `sign-ups close ${it.signupDeadlineLabel}` : "sign-ups closed"}
               </p>
               <p className="mt-1 text-sm text-slate-400">
-                Captains by lottery, squads by player auction. {it.playersPerTeam} players a side.
+                {it.completed
+                  ? "Thank you to every player, captain and volunteer. See the squads."
+                  : `Captains by lottery, squads by player auction. ${it.playersPerTeam} players a side.`}
               </p>
               {signups && (
                 <p className="mt-2 font-mono text-[11px] uppercase tracking-widest text-gold-300">
-                  {signups.count} {signups.count === 1 ? "player" : "players"} signed up{signupsOpen ? " so far" : ""}
+                  {signups.count} {signups.count === 1 ? "player" : "players"} signed up{signupsOpen && !it.completed ? " so far" : ""}
                 </p>
               )}
             </div>
             <Link to="/internal-tournament" className="btn-primary shrink-0">
-              {signupsOpen ? "Sign up" : "See who's in"}
+              {it.completed ? "See the squads" : signupsOpen ? "Sign up" : "See who's in"}
             </Link>
           </Container>
         </section>

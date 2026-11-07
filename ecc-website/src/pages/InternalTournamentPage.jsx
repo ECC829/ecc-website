@@ -545,6 +545,32 @@ function SignupForm({ onSignedUp, onSaved }) {
   );
 }
 
+function TournamentCompleted({ count }) {
+  return (
+    <div className="text-center sm:text-left">
+      <p className="eyebrow">Tournament completed</p>
+      <h2 className="headline mt-3 text-3xl">Thank you, ECC</h2>
+      <p className="mt-4 text-[15px] leading-7 text-slate-400">
+        The ECC Internal T7 Tournament was played on Saturday, Oct 31.
+        {typeof count === "number" && count > 0 && (
+          <>
+            {" "}
+            <strong className="text-white">{count} players</strong> signed up.
+          </>
+        )}{" "}
+        Thanks to every player, captain, umpire and volunteer who made the day happen.
+      </p>
+      <p className="mt-4 text-sm text-slate-500">
+        Sign-ups and the auction are closed. Questions? Contact the organisers at{" "}
+        <a className="text-gold-300 underline" href={`mailto:${club.email}`}>
+          {club.email}
+        </a>
+        .
+      </p>
+    </div>
+  );
+}
+
 function SignupsClosed({ count }) {
   return (
     <div className="text-center sm:text-left">
@@ -586,18 +612,20 @@ export default function InternalTournamentPage() {
             {/* Title + live count */}
             <div className="lg:col-start-1 lg:row-start-1">
               <p className="eyebrow animate-fade-up">
-                Club event · {t.dateLabel}
+                {t.completed ? "Completed" : "Club event"} · {t.dateLabel}
               </p>
               <h1 className="headline mt-4 animate-fade-up text-5xl sm:text-6xl">
                 {t.name}
               </h1>
               <p className="mt-5 max-w-xl animate-fade-up text-base leading-7 text-slate-400">
-                {open
+                {t.completed
+                  ? "A one-day, club-only T7 tournament, played on Saturday, Oct 31. Thank you to everyone who took part."
+                  : open
                   ? "A one-day, club-only T7 tournament. Sign up, nominate yourself for captain, and get picked in the player auction."
                   : "A one-day, club-only T7 tournament. Sign-ups are closed — next up, the captain draw and the player auction."}
               </p>
               <div className="mt-6 max-w-xl">
-                <LiveCount counts={counts} loading={loading} closed={!open} />
+                <LiveCount counts={counts} loading={loading} closed={t.completed || !open} />
               </div>
             </div>
 
@@ -606,7 +634,9 @@ export default function InternalTournamentPage() {
               id="signup"
               className="h-fit rounded-2xl border border-gold-400/20 bg-ink-950 p-6 shadow-2xl shadow-black/40 sm:p-8 lg:col-start-2 lg:row-span-2 lg:row-start-1"
             >
-              {open ? (
+              {t.completed ? (
+                <TournamentCompleted count={counts?.count} />
+              ) : open ? (
                 <>
                   <p className="mb-5 rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-center text-sm font-semibold text-red-200">
                     Sign-ups close at {t.signupDeadlineLabel}
@@ -664,7 +694,7 @@ export default function InternalTournamentPage() {
 
       <Squads squads={counts?.squads} />
 
-      <PlayerPool players={counts?.players ?? null} loading={loading} />
+      {!t.completed && <PlayerPool players={counts?.players ?? null} loading={loading} />}
 
       {/* How it works */}
       <Section id="how-it-works">
@@ -694,6 +724,7 @@ export default function InternalTournamentPage() {
       </Section>
 
       {/* Auction */}
+      {!t.completed && (
       <Section className="border-y border-white/[0.07] bg-ink-900/60">
         <Container>
           <div className="grid gap-4 lg:grid-cols-[1.15fr_0.85fr]">
@@ -754,6 +785,7 @@ export default function InternalTournamentPage() {
           </div>
         </Container>
       </Section>
+      )}
 
     </>
   );

@@ -66,7 +66,7 @@ const blankLot = (player) => ({
 /* Page                                                                 */
 /* ------------------------------------------------------------------ */
 
-export default function AuctionPage() {
+function AuctionBoard() {
   const [saved] = useState(() => readJSON(STORAGE_KEY));
 
   // The board always opens empty: organisers load the captains (from the
@@ -1060,4 +1060,25 @@ function LotOrderPanel({ text, onSave, players }) {
       </div>
     </div>
   );
+}
+
+/** After the tournament, the public sees a "completed" page. Organisers (a device with the key saved) still get the board. */
+export default function AuctionPage() {
+  if (t.completed && !readKey()) {
+    return (
+      <section className="flex min-h-[70vh] items-center bg-ink-950 py-20">
+        <Container className="text-center">
+          <p className="eyebrow">Auction completed</p>
+          <h1 className="headline mt-4 text-5xl sm:text-6xl">The auction is done</h1>
+          <p className="mx-auto mt-5 max-w-xl text-base leading-7 text-slate-400">
+            Ten captains built ten squads in the ECC Internal T7 player auction. Thank you to everyone who took part.
+          </p>
+          <Link to="/internal-tournament" className="btn-primary mt-8 inline-flex">
+            See the squads
+          </Link>
+        </Container>
+      </section>
+    );
+  }
+  return <AuctionBoard />;
 }
